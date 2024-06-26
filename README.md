@@ -1,92 +1,245 @@
-# Ansible Zabbix
+# Zabbix collection for Ansible
 
+Plugins:
 
+![plugins](https://github.com/ansible-collections/community.zabbix/workflows/plugins-integration/badge.svg) ![repo-sanity](https://github.com/ansible-collections/community.zabbix/workflows/repo-sanity/badge.svg)
 
-## Getting started
+Roles:
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+![Zabbix Agent](https://github.com/ansible-collections/community.zabbix/workflows/community.zabbix.zabbix_agent/badge.svg) ![Zabbix Server](https://github.com/ansible-collections/community.zabbix/workflows/community.zabbix.zabbix_server/badge.svg) ![Zabbix Proxy](https://github.com/ansible-collections/community.zabbix/workflows/community.zabbix.zabbix_proxy/badge.svg) ![Zabbix Web](https://github.com/ansible-collections/community.zabbix/workflows/community.zabbix.zabbix_web/badge.svg) ![Zabbix Javagateway](https://github.com/ansible-collections/community.zabbix/workflows/community.zabbix.zabbix_javagateway/badge.svg)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+**Table of Contents**
 
-## Add your files
+- [Zabbix collection for Ansible](#zabbix-collection-for-ansible)
+  * [Introduction](#introduction)
+  * [Included content](#included-content)
+  * [Installation](#installation)
+    + [Requirements](#requirements)
+    + [Installing the Collection from Ansible Galaxy](#installing-the-collection-from-ansible-galaxy)
+    + [Upgrading collection](#upgrading-collection)
+  * [Usage](#usage)
+  * [Supported Zabbix versions](#supported-zabbix-versions)
+  * [Collection life cycle and support](#collection-life-cycle-and-support)
+  * [Contributing](#contributing)
+  * [License](#license)
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Introduction
 
-```
-cd existing_repo
-git remote add origin https://drm-gitlab.redlabs.pl/dsw/ansible-zabbix.git
-git branch -M main
-git push -uf origin main
-```
+This repo hosts the `community.zabbix` Ansible Collection.
 
-## Integrate with your tools
+The collection includes a variety of Ansible content to help automate the management of resources in Zabbix.
 
-- [ ] [Set up project integrations](https://drm-gitlab.redlabs.pl/dsw/ansible-zabbix/-/settings/integrations)
+## Included content
 
-## Collaborate with your team
+Click on the name of a plugin or module to view that content's documentation:
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+  - **Inventory Sources**:
+    - [zabbix](scripts/inventory/zabbix.py) - Zabbix Inventory Script
+    - [zabbix_inventory](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_inventory_inventory.html) - Zabbix Ansible Inventory Plugin
+  - **Modules**:
+    - [zabbix_action](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_action_module.html)
+    - [zabbix_authentication](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_authentication_module.html)
+    - [zabbix_autoregister](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_autoregister_module.html)
+    - [zabbix_discovery_rule](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_discovery_rule_module.html)
+    - [zabbix_globalmacro](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_globalmacro_module.html)
+    - [zabbix_group_info](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_group_info_module.html)
+    - [zabbix_group_events_info](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_group_events_info_module.html)
+    - [zabbix_group](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_group_module.html)
+    - [zabbix_host_events_info](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_host_events_info_module.html)
+    - [zabbix_host_info](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_host_info_module.html)
+    - [zabbix_host](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_host_module.html)
+    - [zabbix_hostmacro](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_hostmacro_module.html)
+    - [zabbix_housekeeping](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_housekeeping_module.html)
+    - [zabbix_maintenance](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_maintenance_module.html)
+    - [zabbix_map](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_map_module.html)
+    - [zabbix_mediatype](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_mediatype_module.html)
+    - [zabbix_proxy_info](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_proxy_info_module.html)
+    - [zabbix_proxy](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_proxy_module.html)
+    - [zabbix_screen](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_screen_module.html)
+    - [zabbix_script](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_script_module.html)
+    - [zabbix_service](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_service_module.html)
+    - [zabbix_template_info](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_template_info_module.html)
+    - [zabbix_template](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_template_module.html)
+    - [zabbix_user_info](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_user_info_module.html)
+    - [zabbix_user](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_user_module.html)
+    - [zabbix_usergroup](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_usergroup_module.html)
+    - [zabbix_valuemap](https://docs.ansible.com/ansible/latest/collections/community/zabbix/zabbix_valuemap_module.html)
+  - **Roles**:
+    - [zabbix_agent](docs/ZABBIX_AGENT_ROLE.md)
+    - [zabbix_javagateway](docs/ZABBIX_JAVAGATEWAY_ROLE.md)
+    - [zabbix_proxy](docs/ZABBIX_PROXY_ROLE.md)
+    - [zabbix_server](docs/ZABBIX_SERVER_ROLE.md)
+    - [zabbix_web](docs/ZABBIX_WEB_ROLE.md)
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+### Requirements
+
+Some of the components in this collection requires additional dependencies. Review components you are interested in by visiting links present in the [Included content](#included-content) section.
+
+While the various roles and modules may work with earlier versions of Python and Ansible, they are only tested and maintained against Ansible Core >= 2.15 and python >= 3.9 
+
+#### External Collections
+
+Additional collections may be required when running the various roles.
+
+* `ansible.posix`:  Required if using SELinux portion of any roles
+* `ansible.general`:  Required if using SELinux portion of any roles
+* `ansible.netcommon`:  Required when using the agent role
+* `community.mysql`:  Required for the proxy or server roles if using MySQL
+* `community.postgresql`:  Required for the proxy or server roles if using PostgreSQL
+* `community.windows`:  Required for the agent role if installing on Windows
+
+
+```bash
+ansible-galaxy collection install ansible.posix
+ansible-galaxy collection install community.general
+ansible-galaxy collection install ansible.netcommon
+```
+### Installing the Collection from Ansible Galaxy
+
+Before using the Zabbix collection, you need to install it with the Ansible Galaxy CLI:
+
+```bash
+ansible-galaxy collection install community.zabbix
+```
+
+You can also include it in a `requirements.yml` file along with other required collections and install them via `ansible-galaxy collection install -r requirements.yml`, using the format:
+
+```yaml
+---
+collections:
+  - name: community.zabbix
+    version: 3.0.1
+  - name: ansible.posix
+    version: 1.3.0
+  - name: community.general
+    version: 3.7.0
+```
+
+### Upgrading collection
+
+Make sure to read [UPGRADE](docs/UPGRADE.md) document before installing newer version of this collection.
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+*Please note that these are not working examples. For documentation on how to use content included in this collection, refer to the links in the [Included content](#included-content) section.*
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+To use a module or role from this collection, reference them with their Fully Qualified Collection Namespace (FQCN) like so:
+
+```yaml
+---
+- name: Using Zabbix collection to install Zabbix Agent
+  hosts: localhost
+  roles:
+    - role: community.zabbix.zabbix_agent
+      zabbix_agent_server: zabbix.example.com
+      ...
+
+- name: If Zabbix WebUI runs on non-default (zabbix) path, e.g. http://<FQDN>/zabbixeu
+  ansible.builtin.set_fact:
+    ansible_zabbix_url_path: 'zabbixeu'
+
+- name: Using Zabbix collection to manage Zabbix Server's elements with username/password
+  hosts: zabbix.example.com
+  vars:
+    ansible_network_os: community.zabbix.zabbix
+    ansible_connection: httpapi
+    ansible_httpapi_port: 80
+    ansible_httpapi_use_ssl: false  # Set to true for HTTPS
+    ansible_httpapi_validate_certs: false  # For HTTPS et to true to validate server's certificate
+    ansible_user: Admin
+    ansible_httpapi_pass: zabbix
+  tasks:
+    - name: Ensure host is monitored by Zabbix
+      community.zabbix.zabbix_host:
+        ...
+
+- name: Using Zabbix collection to manage Zabbix Server's elements with authentication key
+  hosts: zabbix.example.net
+  vars:
+    ansible_network_os: community.zabbix.zabbix
+    ansible_connection: httpapi
+    ansible_httpapi_port: 80
+    ansible_httpapi_use_ssl: false  # Set to true for HTTPS
+    ansible_httpapi_validate_certs: false  # For HTTPS set to true to validate server's certificate
+    ansible_zabbix_auth_key: 8ec0d52432c15c91fcafe9888500cf9a607f44091ab554dbee860f6b44fac895
+  tasks:
+    - name: Ensure host is monitored by Zabbix
+      community.zabbix.zabbix_host:
+        ...
+```
+
+Or you include collection name `community.zabbix` in the playbook's `collections` element, like this:
+
+```yaml
+---
+- name: Using Zabbix collection
+  hosts: localhost
+  collections:
+    - community.zabbix
+
+  roles:
+    - role: zabbix_agent
+      zabbix_agent_server: zabbix.example.com
+      ...
+
+- name: Using Zabbix collection to manage Zabbix Server's elements with username/password
+  hosts: zabbix.example.com
+  vars:
+    ansible_network_os: community.zabbix.zabbix
+    ansible_connection: httpapi
+    ansible_httpapi_port: 80
+    ansible_httpapi_use_ssl: false  # Set to true for HTTPS
+    ansible_httpapi_validate_certs: false  # For HTTPS et to true to validate server's certificate
+    ansible_user: Admin
+    ansible_httpapi_pass: zabbix
+  tasks:
+    - name: Ensure host is monitored by Zabbix
+      zabbix.zabbix_host:
+        ...
+
+- name: Using Zabbix collection to manage Zabbix Server's elements with authentication key
+  hosts: zabbix.example.net
+  vars:
+    ansible_network_os: community.zabbix.zabbix
+    ansible_connection: httpapi
+    ansible_httpapi_port: 80
+    ansible_httpapi_use_ssl: false  # Set to true for HTTPS
+    ansible_httpapi_validate_certs: false  # For HTTPS et to true to validate server's certificate
+    ansible_zabbix_auth_key: 8ec0d52432c15c91fcafe9888500cf9a607f44091ab554dbee860f6b44fac895
+  tasks:
+    - name: Ensure host is monitored by Zabbix
+      community.zabbix.zabbix_host:
+        ...
+```
+
+If Basic Authentication is required to access Zabbix server add following variables:
+```
+zabbix_api_http_user: "user"
+zabbix_api_http_password: "password"
+```
+
+## Supported Zabbix versions
+
+Main priority is to support Zabbix releases which have official full support from Zabbix LLC. Please checkout the versions at [Zabbix Life Cycle & Release Policy](https://www.zabbix.com/life_cycle_and_release_policy) page.
+
+Support for Zabbix LTS versions will be dropped with Major releases of the collection and mostly affect modules. Each role is following its unique support matrix. You should always consult documentation of roles in *docs/* directory.
+
+If you find any inconsistencies with the version of Zabbix you are using, feel free to open a pull request or an issue and we will try to address it as soon as possible. In case of pull requests, please make sure that your changes will not break any existing functionality for currently supported Zabbix releases.
+
+## Collection life cycle and support
+
+See [RELEASE](docs/RELEASE.md) document for more information regarding life cycle and support for the collection.
 
 ## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+See [CONTRIBUTING](CONTRIBUTING.md) for more information about how to contribute to this repository.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Please also feel free to stop by our [Gitter community](https://gitter.im/community-zabbix/community).
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+GNU General Public License v3.0 or later
+
+See [LICENSE](LICENSE) to see the full text.
