@@ -3,6 +3,7 @@
   ansible.builtin.get_url:
     url: "{{ zabbix_repo_key }}"
     dest: /usr/share/keyrings/zabbix-archive-keyring.gpg
+  become: yes
   register: zabbix_repo_key_download
   until: zabbix_repo_key_download is succeeded
   changed_when: False
@@ -12,16 +13,19 @@
     repo: "{{ zabbix_repo }}"
     filename: 'zabbix'
     state: present
+  become: yes
   register: add_zabbix_repo
   until: add_zabbix_repo is succeeded
 
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
+  become: yes
   when: add_zabbix_repo.changed
 
 - name: Install Zabbix packages
   ansible.builtin.apt:
     name: "{{ zabbix_packages }}"
     state: present
+  become: yes
 

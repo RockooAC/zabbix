@@ -5,6 +5,7 @@
     dest: /etc/zabbix/zabbix_agentd.conf
   notify: restart zabbix-agent
   when: "'zabbix-agent' in zabbix_packages"
+  become: yes
 
 - name: Create zabbix-agent.key file from template
   ansible.builtin.template:
@@ -13,6 +14,7 @@
     owner: zabbix
     group: root
     mode: '0644'
+  become: yes
 
 - name: Ensure Zabbix Agent is enabled and started
   ansible.builtin.service:
@@ -20,9 +22,4 @@
     enabled: yes
     state: started
   when: "'zabbix-agent' in zabbix_packages"
-
-- name: Restart Zabbix Agent
-  ansible.builtin.service:
-    name: zabbix-agent
-    state: restarted
-  listen: restart zabbix-agent
+  become: yes

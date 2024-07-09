@@ -1,8 +1,12 @@
+PidFile=/run/zabbix/zabbix_agentd.pid
+LogFile=/var/log/zabbix-agent/zabbix_agentd.log
+LogFileSize=0
 Server={{ zabbix_server_ip }}
 ServerActive={{ zabbix_active_server }}
 Hostname={{ inventory_hostname }}
-LogFile=/var/log/zabbix/zabbix_agentd.log
 HostMetadataItem={{ host_metadata_item }}
-TLSConnect={{ TLSConnect-option }}
-TLSAccept={{ TLSAccept-option }}
-TLSPSKIdentity={{ TLSPSKIdentity }}
+Include=/etc/zabbix/zabbix_agentd.conf.d/*.conf
+TLSConnect={{ tLSConnect }}
+TLSAccept={{ tLSAccept }}
+TLSPSKIdentity={{ tLSPSKIdentity }}
+TLSPSKFile=/etc/zabbix/zabbix-agent.key
