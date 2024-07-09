@@ -1,0 +1,20 @@
+---
+- name: Configure Zabbix Agent
+  ansible.builtin.template:
+    src: zabbix_agentd.conf.j2
+    dest: /etc/zabbix/zabbix_agentd.conf
+  notify: restart zabbix-agent
+  when: "'zabbix-agent' in zabbix_packages"
+
+- name: Ensure Zabbix Agent is enabled and started
+  ansible.builtin.service:
+    name: zabbix-agent
+    enabled: yes
+    state: started
+  when: "'zabbix-agent' in zabbix_packages"
+
+- name: Restart Zabbix Agent
+  ansible.builtin.service:
+    name: zabbix-agent
+    state: restarted
+  listen: restart zabbix-agent

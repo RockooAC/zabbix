@@ -1,0 +1,30 @@
+---
+- name: Configure Zabbix Proxy
+  ansible.builtin.template:
+    src: zabbix_proxy.conf.j2
+    dest: /etc/zabbix/zabbix_proxy.conf
+  notify: restart zabbix-proxy
+  when: "'zabbix-proxy-sqlite3' in zabbix_packages"
+
+- name: Create zabbix-proxy.key file from template
+  ansible.builtin.template:
+    src: zabbix-proxy.key.j2
+    dest: /etc/zabbix/zabbix-proxy.key
+    owner: zabbix
+    group: root
+    mode: '0644'
+
+- name: Create zabbix-agent.key file from template
+  ansible.builtin.template:
+    src: zabbix-agent.key.j2
+    dest: /etc/zabbix/zabbix-agent.key
+    owner: zabbix
+    group: root
+    mode: '0644'
+
+- name: Ensure Zabbix Proxy is enabled and started
+  ansible.builtin.service:
+    name: zabbix-proxy
+    enabled: yes
+    state: started
+  when: "'zabbix-proxy-sqlite3' in zabbix_packages"

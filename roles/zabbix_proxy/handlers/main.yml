@@ -1,0 +1,5 @@
+---
+- name: restart zabbix-proxy
+  ansible.builtin.service:
+    name: zabbix-proxy
+    state: restarted

@@ -1,0 +1,3 @@
+---
+- include_tasks: install_proxy.yml
+- include_tasks: configure_proxy.yml
