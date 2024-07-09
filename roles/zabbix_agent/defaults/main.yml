@@ -1,0 +1,10 @@
+zabbix_repo: "deb [signed-by=/usr/share/keyrings/zabbix-archive-keyring.gpg] http://repo.zabbix.com/zabbix/7.0/ubuntu $(lsb_release -sc) main"
+zabbix_repo_key: "https://repo.zabbix.com/zabbix-official-repo.key"
+zabbix_packages:
+  - zabbix-agent
+zabbix_server_ip: "10.15.5.62,10.15.5.94,10.15.5.97"
+zabbix_active_server: "10.15.5.62:10050,10.15.5.94:10050,10.15.5.97:10050"
+host_metadata_item: "system.uname"
+TLSConnect-option: "psk"
+TLSAccept-option: "psk"
+TLSPSKIdentity: "zabbix-agent"
