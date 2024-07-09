@@ -1,0 +1,13 @@
+
+- hosts: zabbix_proxies
+  become: no
+  remote_user: root
+  roles:
+    - zabbix_proxy
+
+  vars:
+    proxy_auth: ""
+
+  environment:
+    http_proxy: "http://{{ proxy_auth ~ '@' if proxy_auth }}proxy.redge.com:3128"
+    https_proxy: "http://{{ proxy_auth ~ '@' if proxy_auth }}proxy.redge.com:3128"
