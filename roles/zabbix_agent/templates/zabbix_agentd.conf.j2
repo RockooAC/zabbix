@@ -1,4 +1,8 @@
 Server={{ zabbix_server_ip }}
-ServerActive={{ zabbix_server_ip }}
+ServerActive={{ zabbix_active_server }}
 Hostname={{ inventory_hostname }}
 LogFile=/var/log/zabbix/zabbix_agentd.log
+HostMetadataItem={{ host_metadata_item }}
+TLSConnect={{ TLSConnect-option }}
+TLSAccept={{ TLSAccept-option }}
+TLSPSKIdentity={{ TLSPSKIdentity }}
