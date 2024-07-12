@@ -4,7 +4,7 @@
 {##}
 {#Server={{ zabbix_server_ip }}#}
 {#ServerActive={{ zabbix_active_server }}#}
-{#Hostname={{ inventory_hostname }}#}
+{#Hostname={{ ansible_hostname }}#}
 {#HostMetadataItem={{ host_metadata_item }}#}
 {#Include=/etc/zabbix/zabbix_agent2.d/*.conf#}
 {#PluginSocket=/run/zabbix/agent.plugin.sock#}
@@ -160,7 +160,7 @@ ServerActive={{ zabbix_active_server }}
 # Default:
 # Hostname=
 
-Hostname={{ inventory_hostname }}
+Hostname={{ ansible_hostname }}
 
 ### Option: HostnameItem
 #       Item used for generating Hostname if it is undefined. Ignored if Hostname is defined.

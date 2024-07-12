@@ -1,7 +1,7 @@
 
 - hosts: zabbix_agents
-  remote_user: ubuntu
-  become_user: root
+  remote_user: root
+#  become_user: root
   roles:
     - zabbix_agent
 
