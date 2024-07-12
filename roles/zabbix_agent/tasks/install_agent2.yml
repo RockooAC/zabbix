@@ -8,6 +8,20 @@
   until: zabbix_repo_key_download is succeeded
   changed_when: False
 
+- name: Detect Ubuntu version
+  ansible.builtin.command: lsb_release -sr
+  register: ubuntu_version
+  changed_when: False
+
+- name: Download Zabbix release package
+  ansible.builtin.command: >
+    wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu{{ ubuntu_version.stdout }}_all.deb -O /tmp/zabbix-release.deb
+  become: yes
+
+- name: Install Zabbix release package
+  ansible.builtin.command: dpkg -i /tmp/zabbix-release.deb
+  become: yes
+
 - name: Add Zabbix repository
   ansible.builtin.apt_repository:
     repo: "{{ zabbix_repo }}"
@@ -28,4 +42,3 @@
     name: "{{ zabbix_packages }}"
     state: present
   become: yes
-

@@ -1,3 +1,3 @@
 ---
-- include_tasks: install_agent.yml
-- include_tasks: configure_agent.yml
+- include_tasks: install_agent2.yml
+- include_tasks: configure_agent2.yml
