@@ -160,7 +160,7 @@ ServerActive={{ zabbix_active_server }}
 # Default:
 # Hostname=
 
-Hostname={{ ansible_hostname }}
+#Hostname={{ ansible_hostname }}
 
 ### Option: HostnameItem
 #       Item used for generating Hostname if it is undefined. Ignored if Hostname is defined.
@@ -168,7 +168,7 @@ Hostname={{ ansible_hostname }}
 #
 # Mandatory: no
 # Default:
-# HostnameItem=system.hostname
+ HostnameItem=system.hostname
 
 ### Option: HostMetadata
 #       Optional parameter that defines host metadata.
