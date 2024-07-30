@@ -4,17 +4,31 @@
   register: ubuntu_version
   changed_when: False
 
+- name: Check if Zabbix release package is already installed
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/zabbix.list
+  register: zabbix_repo_installed
+
 - name: Download Zabbix release package
   ansible.builtin.command: >
     wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu{{ ubuntu_version.stdout }}_all.deb -O /tmp/zabbix-release.deb
   become: yes
+  when: not zabbix_repo_installed.stat.exists
 
 - name: Install Zabbix release package
   ansible.builtin.command: dpkg -i /tmp/zabbix-release.deb
   become: yes
+  when: not zabbix_repo_installed.stat.exists
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+  when: not zabbix_repo_installed.stat.exists
 
 - name: Install Zabbix packages
   ansible.builtin.apt:
     name: "{{ zabbix_packages }}"
     state: present
   become: yes
+  when: zabbix_packages is defined

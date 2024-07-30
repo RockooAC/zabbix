@@ -7,3 +7,4 @@ t-zabbix-proxy-2 ansible_host=10.14.7.204
 [zabbix_agents]
 wazuh-dashboard ansible_host=10.14.5.16
 wazuh-indexer ansible_host=10.14.5.172
+jira-dev ansible_host=10.14.7.90
