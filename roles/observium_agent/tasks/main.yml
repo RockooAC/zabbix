@@ -1,0 +1,30 @@
+---
+- name: Copy observium_agent to /usr/bin/
+  copy:
+    src: observium_agent
+    dest: /usr/bin/observium_agent
+    mode: '0755'
+
+- name: Create /usr/lib/observium_agent directory
+  file:
+    path: /usr/lib/observium_agent
+    state: directory
+    mode: '0755'
+
+- name: Create /usr/lib/observium_agent/scripts-available directory
+  file:
+    path: /usr/lib/observium_agent/scripts-available
+    state: directory
+    mode: '0755'
+
+- name: Create /usr/lib/observium_agent/scripts-enabled directory
+  file:
+    path: /usr/lib/observium_agent/scripts-enabled
+    state: directory
+    mode: '0755'
+
+- name: Copy scripts to /usr/lib/observium_agent/scripts-available/
+  copy:
+    src: scripts/
+    dest: /usr/lib/observium_agent/scripts-available/
+    mode: '0755'
