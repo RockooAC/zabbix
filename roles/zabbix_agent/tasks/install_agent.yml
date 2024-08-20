@@ -31,7 +31,7 @@
 
 - name: Create directory for custom scripts
   ansible.builtin.file:
-    path: /etc/zabbix/zabbix_agent2.d/customscripts.d
+    path: /etc/zabbix/zabbix_agent.d/customscripts.d
     state: directory
     owner: root
     group: root
