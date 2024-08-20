@@ -32,3 +32,12 @@
     state: present
   become: yes
   when: zabbix_packages is defined
+
+- name: Create directory for custom scripts
+  ansible.builtin.file:
+    path: /etc/zabbix/zabbix_agent2.d/customscripts.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes

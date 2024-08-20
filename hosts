@@ -5,10 +5,12 @@ p-zabbix-proxy-1 ansible_host=10.15.5.97
 t-zabbix-proxy-2 ansible_host=10.14.7.204
 
 [zabbix_agents]
-wazuh-dashboard ansible_host=10.14.5.16
-wazuh-indexer ansible_host=10.14.5.172
+mysql2021-2 ansible_host=mysql2021-02.fipa.redgelabs.com
 jira-dev ansible_host=10.14.7.90
 cm2_redge_media ansible_host=10.15.5.72
+wazuh-dashboard-01 ansible_host=10.14.5.16
+wazuh-server-01 ansible_host=10.14.5.89
+wazuh-indexer-01 ansible_host=10.14.5.172
 
 [observium_agents]
 hardening ansible_host=10.14.7.129
