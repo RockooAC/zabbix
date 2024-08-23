@@ -4,6 +4,16 @@
   register: ubuntu_version
   changed_when: False
 
+- name: Check if Zabbix Agent 1 is installed
+  ansible.builtin.package_facts:
+
+- name: Check if Zabbix Agent 1 is installed and remove it
+  ansible.builtin.apt:
+    name: zabbix-agent
+    state: absent
+  become: yes
+  when: "'zabbix-agent' in ansible_facts.packages"
+
 - name: Check if Zabbix release package is already installed
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/zabbix.list
@@ -26,12 +36,19 @@
   become: yes
   when: not zabbix_repo_installed.stat.exists
 
-- name: Install Zabbix packages
+#- name: Install Zabbix packages
+#  ansible.builtin.apt:
+#    name: "{{ zabbix_packages }}"
+#    state: present
+#  become: yes
+#  when: zabbix_packages is defined
+
+- name: Install Zabbix Agent 2 if not installed
   ansible.builtin.apt:
     name: "{{ zabbix_packages }}"
     state: present
   become: yes
-  when: zabbix_packages is defined
+  when: "'zabbix-agent2' not in ansible_facts.packages"
 
 - name: Create directory for custom scripts
   ansible.builtin.file:
