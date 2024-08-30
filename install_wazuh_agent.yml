@@ -1,0 +1,14 @@
+---
+- name: Install and configure Wazuh agent
+  hosts: wazuh-agents
+  become: yes
+  remote_user: root
+  roles:
+    - install_wazuh_agent
+
+  vars:
+    proxy_auth: ""
+
+  environment:
+    http_proxy: "http://{{ proxy_auth ~ '@' if proxy_auth else '' }}proxy.redge.com:3128"
+    https_proxy: "http://{{ proxy_auth ~ '@' if proxy_auth else '' }}proxy.redge.com:3128"
