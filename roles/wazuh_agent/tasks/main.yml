@@ -1,0 +1,46 @@
+---
+- name: Confirm role execution
+  debug:
+    msg: "Wazuh agent role is running"
+
+- name: Download Wazuh GPG key
+  ansible.builtin.get_url:
+    url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    dest: /usr/share/keyrings/wazuh.gpg
+  become: yes
+  register: wazuh_gpg_key_download
+  until: wazuh_gpg_key_download is succeeded
+  retries: 3
+  delay: 5
+
+- name: Add Wazuh repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main"
+    filename: 'wazuh'
+    state: present
+  become: yes
+  register: add_wazuh_repo
+  until: add_wazuh_repo is succeeded
+  retries: 3
+  delay: 5
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+  when: add_wazuh_repo.changed
+
+- name: Install Wazuh agent
+  ansible.builtin.apt:
+    name: wazuh-agent
+    state: present
+  become: yes
+  environment:
+    WAZUH_MANAGER: "wazuh.redgelabs.com"
+
+- name: Enable Wazuh agent service
+  ansible.builtin.systemd:
+    name: wazuh-agent
+    enabled: yes
+    state: started
+  become: yes

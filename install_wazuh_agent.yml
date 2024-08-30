@@ -2,9 +2,9 @@
 - name: Install and configure Wazuh agent
   hosts: wazuh-agents
   become: yes
-  remote_user: root
+  remote_user: ubuntu
   roles:
-    - install_wazuh_agent
+    - wazuh_agent
 
   vars:
     proxy_auth: ""
