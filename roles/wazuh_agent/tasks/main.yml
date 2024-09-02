@@ -6,12 +6,13 @@
 - name: Download Wazuh GPG key
   ansible.builtin.get_url:
     url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
-    dest: /usr/share/keyrings/wazuh.gpg
+    dest: /tmp/GPG-KEY-WAZUH
   become: yes
-  register: wazuh_gpg_key_download
-  until: wazuh_gpg_key_download is succeeded
-  retries: 3
-  delay: 5
+
+- name: Convert Wazuh GPG key to keyring format
+  ansible.builtin.command:
+    cmd: "gpg --dearmor -o /usr/share/keyrings/wazuh.gpg /tmp/GPG-KEY-WAZUH"
+  become: yes
 
 - name: Add Wazuh repository
   ansible.builtin.apt_repository:
@@ -37,10 +38,17 @@
   become: yes
   environment:
     WAZUH_MANAGER: "wazuh.redgelabs.com"
+    WAZUH_AGENT_GROUP: "{{ WAZUH_AGENT_GROUP }}"
 
 - name: Enable Wazuh agent service
   ansible.builtin.systemd:
     name: wazuh-agent
     enabled: yes
     state: started
+  become: yes
+
+- name: Clean up temporary GPG key file
+  ansible.builtin.file:
+    path: /tmp/GPG-KEY-WAZUH
+    state: absent
   become: yes
