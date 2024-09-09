@@ -1,15 +1,15 @@
 ---
 - name: Install and configure Wazuh agent
-  hosts: wazuh-agents
+  hosts: wazuh_agents_debian
   become: yes
-  remote_user: ubuntu
+  remote_user: debian
   roles:
     - wazuh_agent
 
   vars:
  #   gpg_key_path: "/usr/share/keyrings/wazuh.gpg"
-    proxy_auth: "gabriela.jastrzebska:a395f90d1579d13d283df9bffbffc414"
-    WAZUH_AGENT_GROUP: "DSW"
+    proxy_auth: ""
+    WAZUH_AGENT_GROUP: ""
 
   environment:
     http_proxy: "http://{{ proxy_auth ~ '@' if proxy_auth else '' }}proxy.redge.com:3128"

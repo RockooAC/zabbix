@@ -24,5 +24,7 @@ psql-prod-02 ansible_host=172.30.2.185
 [observium_agents]
 hardening ansible_host=10.14.7.129
 
-[wazuh-agents]
-risk-mgmt ansible_host=10.14.5.62
+[wazuh_agents_ubuntu]
+
+[wazuh_agents_debian]
+
