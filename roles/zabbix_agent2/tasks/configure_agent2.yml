@@ -6,8 +6,7 @@
     owner: zabbix
     group: zabbix
     mode: '0644'
-  when: "'zabbix-agent2' in zabbix_packages"
-  become: yes
+  notify: Restart zabbix-agent2
 
 - name: Create zabbix-agent.key file from template
   ansible.builtin.template:
@@ -16,12 +15,4 @@
     owner: zabbix
     group: root
     mode: '0644'
-  become: yes
-
-- name: Ensure Zabbix Agent is enabled and started
-  ansible.builtin.service:
-    name: zabbix-agent2
-    enabled: yes
-    state: restarted
-  when: "'zabbix-agent2' in zabbix_packages"
-  become: yes
+  notify: Restart zabbix-agent2

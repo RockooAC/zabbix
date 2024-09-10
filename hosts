@@ -3,9 +3,26 @@ t-zabbix-proxy-1 ansible_host=10.15.5.62
 g-zabbix-proxy-1 ansible_host=10.15.5.94
 p-zabbix-proxy-1 ansible_host=10.15.5.97
 t-zabbix-proxy-2 ansible_host=10.14.7.204
-mysql2021-1 ansible_host=mysql2021-01.fipa.redgelabs.com
+mysql2021-01 ansible_host=mysql2021-01.fipa.redgelabs.com
 
-[zabbix_agents]
+[zabbix_agents:children]
+zabbix_agents_hosts
+prod_controllers
+prod_os_controllers
+prod_os_net_controllers
+prod_os_compute_nodes
+prod_ceph_controllers
+prod_ceph_osd_nodes
+dev_controllers
+dev_os_controllers
+dev_os_net_controllers
+dev_os_compute_nodes
+dev_ceph_controllers
+dev_ceph_osd_nodes
+k8s_dev_controllers
+k8s_dev_workers
+
+[zabbix_agents_hosts]
 #wazuh-dashboard ansible_host=10.14.5.16
 #wazuh-indexer ansible_host=10.14.5.172
 #wazuh-server ansible_host=10.14.5.89
@@ -24,7 +41,105 @@ psql-prod-02 ansible_host=172.30.2.185
 [observium_agents]
 hardening ansible_host=10.14.7.129
 
-[wazuh_agents_ubuntu]
+#[wazuh_agents_ubuntu]
 
-[wazuh_agents_debian]
+#[wazuh_agents_debian]
 
+# Openstack PROD
+
+[prod_controllers]
+g-cc-node ansible_host=g-cc-node.redgelabs.com ansible_python_interpreter=/usr/bin/python3
+p-cc-node ansible_host=p-cc-node.redgelabs.com ansible_python_interpreter=/usr/bin/python3
+t-cc-node ansible_host=t-cc-node.redgelabs.com ansible_python_interpreter=/usr/bin/python3
+
+[prod_os_controllers]
+g-os-controller ansible_host=g-os-controller.redgelabs.com ansible_python_interpreter=/usr/bin/python3
+p-os-controller ansible_host=p-os-controller.redgelabs.com ansible_python_interpreter=/usr/bin/python3
+t-os-controller ansible_host=t-os-controller.redgelabs.com ansible_python_interpreter=/usr/bin/python3
+
+[prod_os_net_controllers]
+g-os-network ansible_host=g-os-network.redgelabs.com
+p-os-network ansible_host=p-os-network.redgelabs.com
+t-os-network ansible_host=t-os-network.redgelabs.com
+
+[prod_os_compute_nodes]
+g-os-compute01 ansible_host=g-os-compute01.redgelabs.com
+g-os-compute02 ansible_host=g-os-compute02.redgelabs.com
+p-os-compute01 ansible_host=p-os-compute01.redgelabs.com
+p-os-compute02 ansible_host=p-os-compute02.redgelabs.com
+t-os-compute01 ansible_host=t-os-compute01.redgelabs.com
+t-os-compute02 ansible_host=t-os-compute02.redgelabs.com
+g-os-gpu-compute01 ansible_host=g-os-gpu-compute01.redgelabs.com
+
+# Ceph PROD
+
+[prod_ceph_controllers]
+g-ceph-controller ansible_host=g-ceph-controller.redgelabs.com
+p-ceph-controller ansible_host=p-ceph-controller.redgelabs.com
+t-ceph-controller ansible_host=t-ceph-controller.redgelabs.com
+
+[prod_ceph_osd_nodes]
+g-ceph-fs01 ansible_host=g-ceph-fs01.redgelabs.com
+g-ceph-ss01 ansible_host=g-ceph-ss01.redgelabs.com
+g-ceph-ss02 ansible_host=g-ceph-ss02.redgelabs.com
+g-ceph-ss03 ansible_host=g-ceph-ss03.redgelabs.com
+g-ceph-ss04 ansible_host=g-ceph-ss04.redgelabs.com
+p-ceph-fs01 ansible_host=p-ceph-fs01.redgelabs.com
+p-ceph-ss01 ansible_host=p-ceph-ss01.redgelabs.com
+p-ceph-ss02 ansible_host=p-ceph-ss02.redgelabs.com
+p-ceph-ss03 ansible_host=p-ceph-ss03.redgelabs.com
+p-ceph-ss04 ansible_host=p-ceph-ss04.redgelabs.com
+t-ceph-fs01 ansible_host=t-ceph-fs01.redgelabs.com
+t-ceph-ss01 ansible_host=t-ceph-ss01.redgelabs.com
+t-ceph-ss02 ansible_host=t-ceph-ss02.redgelabs.com
+t-ceph-ss03 ansible_host=t-ceph-ss03.redgelabs.com
+t-ceph-ss04 ansible_host=t-ceph-ss04.redgelabs.com
+
+# Openstack DEV
+
+[dev_controllers]
+dev-controller01 ansible_host=10.13.16.101 ansible_python_interpreter=/usr/bin/python3
+dev-controller02 ansible_host=10.13.16.102 ansible_python_interpreter=/usr/bin/python3
+dev-controller03 ansible_host=10.13.16.103 ansible_python_interpreter=/usr/bin/python3
+
+[dev_os_controllers]
+dev-os-controller01 ansible_host=10.13.16.111
+dev-os-controller02 ansible_host=10.13.16.121
+dev-os-controller03 ansible_host=10.13.16.131
+
+[dev_os_net_controllers]
+dev-os-network01 ansible_host=10.13.16.112
+dev-os-network02 ansible_host=10.13.16.122
+dev-os-network03 ansible_host=10.13.16.132
+
+[dev_os_compute_nodes]
+dev-os-compute01 ansible_host=10.13.16.104
+dev-os-compute02 ansible_host=10.13.16.105
+
+# Ceph DEV
+
+[dev_ceph_controllers]
+dev-ceph-controller01 ansible_host=10.13.16.113
+dev-ceph-controller02 ansible_host=10.13.16.123
+dev-ceph-controller03 ansible_host=10.13.16.133
+
+[dev_ceph_osd_nodes]
+dev-ceph-osd01 ansible_host=10.13.16.106
+dev-ceph-osd02 ansible_host=10.13.16.107
+dev-ceph-osd03 ansible_host=10.13.16.108
+dev-ceph-osd04 ansible_host=10.13.16.109
+
+# K8S DEV
+
+[k8s_dev_controllers]
+g-k8s-controller-dev ansible_host=10.14.12.51
+p-k8s-controller-dev ansible_host=10.14.13.51
+t-k8s-controller-dev ansible_host=10.14.14.51
+
+[k8s_dev_workers]
+g-k8s-worker-dev-1 ansible_host=10.14.12.53
+p-k8s-worker-dev-1 ansible_host=10.14.13.53
+t-k8s-worker-dev-1 ansible_host=10.14.14.53
+g-k8s-worker-dev-2 ansible_host=10.14.12.54
+p-k8s-worker-dev-2 ansible_host=10.14.13.54
+t-k8s-worker-dev-2 ansible_host=10.14.14.54

@@ -1,54 +1,30 @@
 ---
-- name: Detect Ubuntu version
-  ansible.builtin.command: lsb_release -sr
-  register: ubuntu_version
-  changed_when: False
-
-- name: Check if Zabbix Agent 1 is installed
-  ansible.builtin.package_facts:
-
-- name: Check if Zabbix Agent 1 is installed and remove it
+- name: Remove Zabbix agent 1
   ansible.builtin.apt:
     name: zabbix-agent
     state: absent
-  become: yes
-  when: "'zabbix-agent' in ansible_facts.packages"
-
-- name: Check if Zabbix release package is already installed
-  ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/zabbix.list
-  register: zabbix_repo_installed
 
 - name: Download Zabbix release package
-  ansible.builtin.command: >
-    wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu{{ ubuntu_version.stdout }}_all.deb -O /tmp/zabbix-release.deb
-  become: yes
-  when: not zabbix_repo_installed.stat.exists
-
-- name: Install Zabbix release package
-  ansible.builtin.command: dpkg -i /tmp/zabbix-release.deb
-  become: yes
-  when: not zabbix_repo_installed.stat.exists
+  ansible.builtin.apt:
+    deb: https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu{{ ansible_distribution_version }}_all.deb
+  register: zabbix_deb
 
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
-  become: yes
-  when: not zabbix_repo_installed.stat.exists
+  when: zabbix_deb.changed
 
-#- name: Install Zabbix packages
-#  ansible.builtin.apt:
-#    name: "{{ zabbix_packages }}"
-#    state: present
-#  become: yes
-#  when: zabbix_packages is defined
-
-- name: Install Zabbix Agent 2 if not installed
+- name: Install Zabbix Agent 2
   ansible.builtin.apt:
     name: "{{ zabbix_packages }}"
     state: present
-  become: yes
-  when: "'zabbix-agent2' not in ansible_facts.packages"
+    install_recommends: false
+
+- name: Ensure Zabbix Agent is enabled and started
+  ansible.builtin.service:
+    name: zabbix-agent2
+    enabled: yes
+    state: started
 
 - name: Create directory for custom scripts
   ansible.builtin.file:
@@ -57,4 +33,3 @@
     owner: root
     group: root
     mode: '0755'
-  become: yes
