@@ -6,7 +6,7 @@
 
 - name: Download Zabbix release package
   ansible.builtin.apt:
-    deb: https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-2+ubuntu{{ ansible_distribution_version }}_all.deb
+    deb: "https://repo.zabbix.com/zabbix/7.0/{{ ansible_distribution | lower }}/pool/main/z/zabbix-release/zabbix-release_7.0-2+{{ ansible_distribution | lower }}{{ ansible_distribution_major_version if ansible_distribution == 'Debian' else ansible_distribution_version }}_all.deb"
   register: zabbix_deb
 
 - name: Update apt cache
