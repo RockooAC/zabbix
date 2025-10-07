@@ -8,6 +8,9 @@ Hostname={{ ansible_hostname }}
 HostMetadata=Linux passive
 
 Include=/etc/zabbix/zabbix_agent2.d/*.conf
+Include=/etc/zabbix/zabbix_agent2.d/plugins.d/*.conf
+Include=/etc/zabbix/zabbix_agent2.d/customscripts.d/*.conf
+
 PluginSocket=/run/zabbix/agent.plugin.sock
 ControlSocket=/run/zabbix/agent.sock
 

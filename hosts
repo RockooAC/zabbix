@@ -143,3 +143,6 @@ t-k8s-worker-dev-1 ansible_host=10.14.14.53
 g-k8s-worker-dev-2 ansible_host=10.14.12.54
 p-k8s-worker-dev-2 ansible_host=10.14.13.54
 t-k8s-worker-dev-2 ansible_host=10.14.14.54
+
+[gerrit_hosts]
+gerrit-dsb ansible_host=10.14.7.65

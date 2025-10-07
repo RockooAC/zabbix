@@ -1,11 +1,10 @@
 ---
 - name: Install Agent on Debian/Ubuntu
-  import_tasks: install_Debian.yml
-  when: ansible_os_family == 'Debian'
+  import_tasks: install_agent2.yml
 
-# - name: Generowanie i wdrożenie PSK
-#   import_tasks: psk.yml
-#   when: zabbix_agent_tls_psk_enable | bool
+- name: Generowanie i wdrożenie PSK
+  import_tasks: psk.yml
+  when: zabbix_agent_tls_psk_enable | bool
 
 - name: Configure Agent 2
   import_tasks: configure_agent2.yml

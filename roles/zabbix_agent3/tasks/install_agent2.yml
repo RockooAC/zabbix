@@ -1,0 +1,89 @@
+---
+- name: Usuń stary Zabbix agent (v1)
+  ansible.builtin.apt:
+    name: zabbix-agent
+    state: absent
+  become: true
+
+- name: Usuń stare repo pliki
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/zabbix.list
+    - /etc/apt/sources.list.d/zabbix-fallback.list
+  become: true
+
+- name: Upewnij się, że katalog keyrings istnieje
+  ansible.builtin.file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Upewnij się, że gnupg jest zainstalowane
+  ansible.builtin.apt:
+    name: gnupg
+    state: present
+  become: true
+
+- name: Usuń stare klucze repo Zabbixa (dla pewności)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/share/keyrings/zabbix-official-repo.key
+    - /usr/share/keyrings/zabbix-official-repo.gpg
+  become: true
+
+- name: Pobierz i przekonwertuj klucz repo Zabbixa
+  ansible.builtin.shell: |
+    set -e
+    curl -fsSL https://repo.zabbix.com/zabbix-official-repo.key | gpg --dearmor -o /usr/share/keyrings/zabbix-official-repo.gpg
+  args:
+    executable: /bin/bash
+  become: true
+
+# 🔹 Ustal poprawny codename systemu
+- name: Ustal codename systemu
+  ansible.builtin.set_fact:
+    zabbix_repo_codename: >-
+      {{
+        (ansible_lsb.codename if ansible_lsb.codename is defined else
+         ansible_distribution_release if ansible_distribution_release is defined else
+         'jammy')
+      }}
+
+# 🔹 Utwórz repo dla aktualnego systemu (np. noble)
+- name: Utwórz plik repo Zabbixa
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/zabbix.list
+    mode: '0644'
+    content: |
+      deb [arch=amd64 signed-by=/usr/share/keyrings/zabbix-official-repo.gpg] https://repo.zabbix.com/zabbix/{{ zabbix_agent_version }}/ubuntu {{ zabbix_repo_codename }} main
+  become: true
+
+# 🔹 Odśwież cache apt
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: true
+  register: apt_update_result
+  retries: 3
+  delay: 5
+  until: apt_update_result is succeeded
+  become: true
+
+# 🔹 Zainstaluj pakiety agenta
+- name: Zainstaluj pakiety Zabbix
+  ansible.builtin.apt:
+    name: "{{ zabbix_packages }}"
+    state: present
+    update_cache: false
+  become: true
+
+- name: Upewnij się, że usługa Zabbix agent2 działa
+  ansible.builtin.service:
+    name: zabbix-agent2
+    state: started
+    enabled: true
+  become: true

@@ -1,5 +1,5 @@
 ---
-- name: Configure Zabbix Agent
+- name: Render zabbix_agent2.conf
   ansible.builtin.template:
     src: zabbix_agent2.conf.j2
     dest: /etc/zabbix/zabbix_agent2.conf
@@ -7,9 +7,10 @@
     group: zabbix
     mode: '0644'
   notify: Restart zabbix-agent2
+  register: agent_cfg
 
-- name: Create dir for custome scripts
-  file:
+- name: Create dir for custom scripts
+  ansible.builtin.file:
     path: /etc/zabbix/zabbix_agent2.d/customscripts.d
     state: directory
     owner: root
@@ -17,11 +18,20 @@
     mode: '0755'
   become: true
 
-- name: Create zabbix-agent.key file from template
+- name: Create PSK file from template (if variable present)
+  when: zabbix_agent_tls_psk_enable | bool
   ansible.builtin.template:
     src: zabbix-agent.key.j2
-    dest: /etc/zabbix/zabbix-agent.key
+    dest: "{{ tls_psk_file }}"
     owner: zabbix
-    group: root
-    mode: '0644'
+    group: zabbix
+    mode: '0640'
   notify: Restart zabbix-agent2
+  register: agent_psk
+  become: true
+
+- name: Validate agent config (syntax)
+  ansible.builtin.command: "zabbix_agent2 -T -c /etc/zabbix/zabbix_agent2.conf"
+  changed_when: false
+  when: agent_cfg is changed or (agent_psk is defined and agent_psk is changed)
+  become: true

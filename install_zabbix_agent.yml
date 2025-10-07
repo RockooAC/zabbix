@@ -1,4 +1,4 @@
-- hosts: zabbix_agents
+- hosts: gerrit_hosts
 #  remote_user: ubuntu
   remote_user: root
   become: true
