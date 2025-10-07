@@ -1,0 +1,17 @@
+PidFile=/var/run/zabbix/zabbix_agent2.pid
+LogFile=/var/log/zabbix/zabbix_agent2.log
+LogFileSize=0
+
+Server={{ zabbix_server_ip }}
+ServerActive={{ zabbix_active_server }}
+Hostname={{ ansible_hostname }}
+HostMetadata=Linux passive
+
+Include=/etc/zabbix/zabbix_agent2.d/*.conf
+PluginSocket=/run/zabbix/agent.plugin.sock
+ControlSocket=/run/zabbix/agent.sock
+
+TLSConnect={{ tLSConnect }}
+TLSAccept={{ tLSAccept }}
+TLSPSKIdentity={{ tLSPSKIdentity }}
+TLSPSKFile={{ tLSPSKFile }}

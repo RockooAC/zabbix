@@ -1,0 +1,19 @@
+---
+- name: Generate PSK
+  delegate_to: localhost
+  command: openssl rand -hex 32
+  register: psk_output
+  changed_when: false
+
+- name: Set PSD as fact
+  set_fact:
+    zabbix_psk: "{{ psk_output.stdout }}"
+
+- name: Save psk on host
+  copy:
+    content: "{{ zabbix_psk }}"
+    dest: /etc/zabbix/zabbix_agent.key
+    owner: zabbix
+    group: zabbix
+    mode: '0640'
+  notify: Restart zabbix-agent2

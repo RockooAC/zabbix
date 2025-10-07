@@ -1,0 +1,13 @@
+#zabbix_repo: "deb [signed-by=/usr/share/keyrings/zabbix-archive-keyring.gpg] http://repo.zabbix.com/zabbix/7.0/ubuntu $(lsb_release -sc) main"
+#zabbix_repo_key: "https://repo.zabbix.com/zabbix-official-repo.key"
+zabbix_packages:
+  - zabbix-agent2
+zabbix_server_ip: "10.15.5.62,10.15.5.94,10.15.5.97"
+zabbix_active_server: "10.15.5.62:10051,10.15.5.94:10051,10.15.5.97:10051"
+host_metadata_item: "system.uname"
+tLSConnect: "psk"
+tLSAccept: "psk"
+tLSPSKIdentity: "zabbix-autoregistration"
+tLSPSKFile: /etc/zabbix/zabbix-agent.key
+zabbix_agent_version: 7.0
+zabbix_agent_tls_psk_enable: true

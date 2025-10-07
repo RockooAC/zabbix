@@ -4,7 +4,7 @@
   become: true
   
   roles:
-    - zabbix_agent2
+    - zabbix_agent3
 
   environment:
     http_proxy: "http://{{ proxy_auth ~ '@' if proxy_auth is defined }}proxy.redge.com:3128"

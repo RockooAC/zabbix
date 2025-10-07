@@ -1,0 +1,27 @@
+---
+- name: Configure Zabbix Agent
+  ansible.builtin.template:
+    src: zabbix_agent2.conf.j2
+    dest: /etc/zabbix/zabbix_agent2.conf
+    owner: zabbix
+    group: zabbix
+    mode: '0644'
+  notify: Restart zabbix-agent2
+
+- name: Create dir for custome scripts
+  file:
+    path: /etc/zabbix/zabbix_agent2.d/customscripts.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Create zabbix-agent.key file from template
+  ansible.builtin.template:
+    src: zabbix-agent.key.j2
+    dest: /etc/zabbix/zabbix-agent.key
+    owner: zabbix
+    group: root
+    mode: '0644'
+  notify: Restart zabbix-agent2
