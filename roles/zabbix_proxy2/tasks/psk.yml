@@ -24,7 +24,6 @@
   set_fact:
     zabbix_proxy_tls_psk_value: "{{ existing_psk.content | b64decode | trim }}"
   when: psk_file.stat.exists
-  cacheable: true
 
 - name: Generate PSK key (if missing)
   command: "openssl rand -hex 64"
@@ -47,4 +46,3 @@
     zabbix_proxy_tls_psk_value: "{{ psk_value.stdout }}"
   when: not psk_file.stat.exists
   no_log: true
-  cacheable: true
