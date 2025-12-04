@@ -22,3 +22,24 @@ zabbix_proxy_tls_accept: "psk"
 zabbix_proxy_tls_psk_identity: "{{ inventory_hostname }}"
 zabbix_proxy_tls_psk_file: "/etc/zabbix/zabbix-proxy.key"
 zabbix_proxy_tls_psk_value: "6082e8981b52b4a4bc1a78aaadf5a4094f68b8d00f126b13203d5b26a0f46fd1"
+
+# Zabbix agent running on the proxy host
+zabbix_proxy_agent_enabled: true
+zabbix_proxy_agent_packages:
+  - zabbix-agent2
+zabbix_proxy_agent_hostname: "{{ zabbix_proxy_hostname | default(inventory_hostname) }}"
+zabbix_proxy_agent_server: "{{ zabbix_proxy_server }}"
+zabbix_proxy_agent_server_active: "{{ zabbix_proxy_server }}:10051"
+zabbix_proxy_agent_autoreg_groups:
+  - "Linux servers"
+  - "Zabbix proxies"
+zabbix_proxy_agent_host_metadata: >-
+  {{
+    ('groups=' ~ (zabbix_proxy_agent_autoreg_groups | join(',')))
+    if (zabbix_proxy_agent_autoreg_groups | length > 0)
+    else 'proxy'
+  }}
+zabbix_proxy_agent_host_metadata_item: system.hostname
+zabbix_proxy_agent_tls_psk_identity: "zabbix-autoregistration"
+zabbix_proxy_agent_tls_psk_file: /etc/zabbix/zabbix_agent.key
+zabbix_proxy_agent_tls_psk_value: "6082e8981b52b4a4bc1a78aaadf5a4094f68b8d00f126b13203d5b26a0f46fd1"
