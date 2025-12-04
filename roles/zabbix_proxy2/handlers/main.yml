@@ -2,3 +2,8 @@
   service:
     name: zabbix-proxy
     state: restarted
+
+- name: Restart zabbix-agent2
+  ansible.builtin.service:
+    name: zabbix-agent2
+    state: restarted
