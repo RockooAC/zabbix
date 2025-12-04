@@ -1,0 +1,23 @@
+PidFile=/var/run/zabbix/zabbix_agent2.pid
+LogFile=/var/log/zabbix/zabbix_agent2.log
+LogFileSize=0
+
+Server={{ zabbix_proxy_agent_server }}
+ServerActive={{ zabbix_proxy_agent_server_active }}
+Hostname={{ zabbix_proxy_agent_hostname | default(ansible_hostname) }}
+HostMetadata={{ zabbix_proxy_agent_host_metadata | regex_replace('^"|"$', '') }}
+{% if zabbix_proxy_agent_host_metadata_item %}
+HostMetadataItem={{ zabbix_proxy_agent_host_metadata_item | regex_replace('^"|"$', '') }}
+{% endif %}
+
+Include=/etc/zabbix/zabbix_agent2.d/*.conf
+Include=/etc/zabbix/zabbix_agent2.d/plugins.d/*.conf
+Include=/etc/zabbix/zabbix_agent2.d/customscripts.d/*.conf
+
+PluginSocket=/run/zabbix/agent.plugin.sock
+ControlSocket=/run/zabbix/agent.sock
+
+TLSConnect=psk
+TLSAccept=psk
+TLSPSKIdentity={{ zabbix_proxy_agent_tls_psk_identity }}
+TLSPSKFile={{ zabbix_proxy_agent_tls_psk_file }}
