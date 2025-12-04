@@ -19,5 +19,5 @@ zabbix_proxy_log_slow_queries: 3000
 zabbix_proxy_stats_allowed_ip: "127.0.0.1"
 zabbix_proxy_tls_connect: "psk"
 zabbix_proxy_tls_accept: "psk"
-zabbix_proxy_tls_psk_identity: "zabbix-proxy"
+zabbix_proxy_tls_psk_identity: "zabbix-proxy-{{ inventory_hostname }}"
 zabbix_proxy_tls_psk_file: "/etc/zabbix/zabbix-proxy.key"

@@ -1,7 +1,0 @@
-zabbix_repo: "deb [signed-by=/usr/share/keyrings/zabbix-archive-keyring.gpg] http://repo.zabbix.com/zabbix/7.0/ubuntu $(lsb_release -sc) main"
-zabbix_repo_key: "https://repo.zabbix.com/zabbix-official-repo.key"
-zabbix_packages:
-  - zabbix-proxy-sqlite3
-  - zabbix-agent
-zabbix_proxy_db: "/var/lib/zabbix/zabbix_proxy.db"
-zabbix_server_ip: "172.30.2.15"
