@@ -7,7 +7,7 @@ zabbix_active_server: "10.15.5.62:10051,10.15.5.94:10051,10.15.5.97:10051"
 host_metadata_item: system.hostname
 zabbix_agent_autoreg_groups: []
 zabbix_agent_hostname: "{{ ansible_hostname }}"
-zabbix_agent_host_metadata: "proxy"
+zabbix_agent_host_metadata: "Linux active"
 tLSPSKIdentity: "zabbix-autoregistration"
 tLSConnect: "psk"
 tLSAccept: "psk"
