@@ -1,17 +1,34 @@
-- name: Add Zabbix repository GPG key
-  apt_key:
-    url: "{{ zabbix_repo_key_url }}"
-    state: present
+- name: Ensure keyrings directory exists
+  ansible.builtin.file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download and convert Zabbix repository key
+  ansible.builtin.shell: |
+    set -e
+    curl -fsSL {{ zabbix_repo_key_url }} | gpg --dearmor -o /usr/share/keyrings/zabbix-official-repo.gpg
+  args:
+    executable: /bin/bash
+
+- name: Determine repository codename
+  ansible.builtin.set_fact:
+    zabbix_repo_codename: >-
+      {{
+        (ansible_lsb.codename if ansible_lsb.codename is defined else
+         ansible_distribution_release if ansible_distribution_release is defined else
+         'jammy')
+      }}
 
 - name: Add Zabbix APT repository
-  apt_repository:
-    repo: "deb https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu {{ ansible_distribution_release }} main"
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/zabbix-official-repo.gpg] https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu {{ zabbix_repo_codename }} main"
     state: present
     filename: "zabbix"
     update_cache: yes
 
 - name: Install Zabbix proxy (SQLite3)
-  apt:
+  ansible.builtin.apt:
     name: "{{ zabbix_proxy_package }}"
     state: present
     update_cache: yes
