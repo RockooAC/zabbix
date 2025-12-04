@@ -6,7 +6,7 @@ Server={{ zabbix_server_ip }}
 ServerActive={{ zabbix_active_server }}
 Hostname={{ zabbix_agent_hostname | default(ansible_hostname) }}
 HostMetadata={{ zabbix_agent_host_metadata | regex_replace('^"|"$', '') }}
-{% if host_metadata_item is defined %}
+{% if host_metadata_item %}
 HostMetadataItem={{ host_metadata_item | regex_replace('^"|"$', '') }}
 {% endif %}
 
