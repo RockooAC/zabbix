@@ -18,9 +18,9 @@
   register: psk_slurp
   when: psk_file.stat.exists
 
-- name: Set PSK fact from existing file
+- name: Set existing PSK fact
   ansible.builtin.set_fact:
-    zabbix_psk: "{{ psk_slurp.content | b64decode | trim }}"
+    existing_zabbix_psk: "{{ psk_slurp.content | b64decode | trim }}"
   when: psk_file.stat.exists
 
 - name: Generate PSK (remote) – 64 bytes hex
@@ -28,17 +28,21 @@
   ansible.builtin.command: "openssl rand -hex 64"
   register: psk_gen
   changed_when: true
-  when: not psk_file.stat.exists and not ansible_check_mode
+  when: zabbix_agent_tls_psk_value is not defined and not psk_file.stat.exists and not ansible_check_mode
+
+- name: Determine desired PSK value
+  ansible.builtin.set_fact:
+    zabbix_psk: "{{ (zabbix_agent_tls_psk_value | default(existing_zabbix_psk, true)) | default(psk_gen.stdout) }}"
 
 - name: Write PSK to file with proper perms
   become: true
   ansible.builtin.copy:
-    content: "{{ psk_gen.stdout }}"
+    content: "{{ zabbix_psk }}"
     dest: /etc/zabbix/zabbix_agent.key
     owner: zabbix
     group: zabbix
     mode: '0640'
-  when: not psk_file.stat.exists and not ansible_check_mode
+  when: (not psk_file.stat.exists) or (zabbix_psk is defined and zabbix_psk != existing_zabbix_psk)
   notify: Restart zabbix-agent2
 
 
