@@ -1,8 +1,6 @@
 - hosts: zabbix_proxies
   become: no
   remote_user: root
-  roles:
-    - zabbix_proxy2
 
   vars:
     proxy_auth: ""
@@ -10,3 +8,17 @@
   environment:
     http_proxy: "http://{{ proxy_auth ~ '@' if proxy_auth }}proxy.redge.com:3128"
     https_proxy: "http://{{ proxy_auth ~ '@' if proxy_auth }}proxy.redge.com:3128"
+
+  tasks:
+    - name: Install and configure Zabbix proxy
+      ansible.builtin.import_role:
+        name: zabbix_proxy2
+
+    - name: Install and configure Zabbix agent on proxy host
+      ansible.builtin.import_role:
+        name: zabbix_agent3
+      vars:
+        zabbix_agent_hostname: "{{ zabbix_proxy_hostname | default(inventory_hostname) }}"
+        zabbix_agent_autoreg_groups:
+          - "Linux servers"
+          - "Zabbix proxies"

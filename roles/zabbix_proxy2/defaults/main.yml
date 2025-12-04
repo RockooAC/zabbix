@@ -2,7 +2,7 @@ zabbix_version: "7.0"
 zabbix_repo_key_url: "https://repo.zabbix.com/zabbix-official-repo.key"
 zabbix_proxy_package: "zabbix-proxy-sqlite3"
 zabbix_proxy_server: "172.30.2.15"
-zabbix_proxy_hostname: "p-zabbix-proxy-1"
+zabbix_proxy_hostname: "{{ inventory_hostname }}"
 zabbix_proxy_log_file: "/var/log/zabbix/zabbix_proxy.log"
 zabbix_proxy_log_file_size: 0
 zabbix_proxy_pid_file: "/run/zabbix/zabbix_proxy.pid"
