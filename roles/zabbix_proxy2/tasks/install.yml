@@ -4,26 +4,12 @@
     state: directory
     mode: '0755'
 
-- name: Ensure gnupg is installed
-  ansible.builtin.apt:
-    name: gnupg
-    state: present
-
-- name: Remove legacy Zabbix key files
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /usr/share/keyrings/zabbix-official-repo.key
-    - /usr/share/keyrings/zabbix-official-repo.gpg
-
 - name: Download and convert Zabbix repository key
   ansible.builtin.shell: |
     set -e
     curl -fsSL {{ zabbix_repo_key_url }} | gpg --dearmor -o /usr/share/keyrings/zabbix-official-repo.gpg
   args:
     executable: /bin/bash
-    creates: /usr/share/keyrings/zabbix-official-repo.gpg
 
 - name: Determine repository codename
   ansible.builtin.set_fact:
