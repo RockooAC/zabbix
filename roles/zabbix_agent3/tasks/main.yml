@@ -10,7 +10,9 @@
   import_tasks: configure_agent2.yml
 
 - name: Ensure Zabbix Agent 2 is running and enabled
-  service:
+  become: true
+  ansible.builtin.systemd:
     name: zabbix-agent2
-    state: started
+    state: restarted
     enabled: true
+    daemon_reload: true
