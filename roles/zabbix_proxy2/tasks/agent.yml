@@ -39,16 +39,29 @@
         existing_proxy_agent_psk: "{{ proxy_agent_psk_slurp.content | b64decode | trim }}"
       when: proxy_agent_psk_file.stat.exists
 
-    - name: Generate agent PSK (remote) – 64 bytes hex
-      become: true
+    - name: Generate agent PSK when missing
       ansible.builtin.command: "openssl rand -hex 64"
       register: proxy_agent_psk_gen
       changed_when: true
       when: zabbix_proxy_agent_tls_psk_value is not defined and not proxy_agent_psk_file.stat.exists and not ansible_check_mode
 
-    - name: Determine desired agent PSK value
+    - name: Determine desired agent PSK
+      vars:
+        proxy_agent_psk_candidates:
+          - "{{ zabbix_proxy_agent_tls_psk_value | default(omit) }}"
+          - "{{ proxy_agent_psk_slurp.content | b64decode | trim if proxy_agent_psk_slurp is defined else omit }}"
+          - "{{ proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else omit }}"
       ansible.builtin.set_fact:
-        proxy_agent_psk_value: "{{ (zabbix_proxy_agent_tls_psk_value | default(existing_proxy_agent_psk, true)) | default(proxy_agent_psk_gen.stdout) }}"
+        proxy_agent_psk_value: "{{ zabbix_proxy_agent_tls_psk_value
+          | default(proxy_agent_psk_slurp.content | b64decode | trim if proxy_agent_psk_slurp is defined else None)
+          | default(proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else None) }}"
+        zabbix_proxy_agent_tls_psk_value: "{{ proxy_agent_psk_value }}"
+      no_log: false
+
+    - name: Ensure agent PSK value is available
+      ansible.builtin.fail:
+        msg: "Unable to determine proxy agent PSK; provide zabbix_proxy_agent_tls_psk_value or ensure the PSK file exists."
+      when: proxy_agent_psk_value is none
 
     - name: Write agent PSK to file
       ansible.builtin.copy:
