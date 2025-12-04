@@ -79,7 +79,7 @@ Hostname={{ zabbix_proxy_hostname }}
 # Mandatory: yes, if LogType is set to file, otherwise no
 # Default:
 # LogFile=
-LogFile={{ zabbix_proxy_logfile }}
+LogFile={{ zabbix_proxy_log_file }}
 
 ### Option: LogFileSize
 #       Maximum size of log file in MB.
@@ -89,7 +89,7 @@ LogFile={{ zabbix_proxy_logfile }}
 # Range: 0-1024
 # Default:
 # LogFileSize=1
-LogFileSize={{ zabbix_proxy_logfilesize }}
+LogFileSize={{ zabbix_proxy_log_file_size }}
 
 ### Option: DebugLevel
 #       Specifies debug level:
@@ -129,7 +129,7 @@ LogFileSize={{ zabbix_proxy_logfilesize }}
 # Mandatory: no
 # Default:
 # PidFile=/tmp/zabbix_proxy.pid
-PidFile={{ zabbix_proxy_pidfile }}
+PidFile={{ zabbix_proxy_pid_file }}
 
 ### Option: SocketDir
 #       IPC socket directory.
@@ -138,7 +138,7 @@ PidFile={{ zabbix_proxy_pidfile }}
 # Mandatory: no
 # Default:
 # SocketDir=/tmp
-SocketDir={{ zabbix_proxy_socketdir }}
+SocketDir={{ zabbix_proxy_socket_dir }}
 
 ### NOTE: Support for Oracle DB is deprecated since Zabbix 7.0 and will be removed in future versions.
 
@@ -249,7 +249,7 @@ DBName={{ zabbix_proxy_dbname }}
 # Values: disk, memory, hybrid
 # Default:
 # ProxyBufferMode=disk
-ProxyBufferMode={{ zabbix_proxy_buffer_mode }}
+ProxyBufferMode={{ zabbix_proxy_proxy_buffer_mode }}
 
 ### Option: ProxyMemoryBufferSize
 #       Size of shared memory cache for collected history, discovery and auto registration data, in bytes.
@@ -261,7 +261,7 @@ ProxyBufferMode={{ zabbix_proxy_buffer_mode }}
 # Range: 0,128K-2G
 # Default:
 # ProxyMemoryBufferSize=0
-ProxyMemoryBufferSize={{ zabbix_proxy_memory_buffer_size }}
+ProxyMemoryBufferSize={{ zabbix_proxy_proxy_memory_buffer_size }}
 
 ### Option: ProxyMemoryBufferAge
 #       Maximum age of data in proxy memory buffer, in seconds.
@@ -471,7 +471,7 @@ ProxyMemoryBufferSize={{ zabbix_proxy_memory_buffer_size }}
 # Mandatory: no
 # Default:
 # SNMPTrapperFile=/tmp/zabbix_traps.tmp
-SNMPTrapperFile={{ zabbix_proxy_snmptrapper_file }}
+SNMPTrapperFile={{ zabbix_proxy_snmptrapperfile }}
 
 ### Option: StartSNMPTrapper
 #       If 1, SNMP trapper process is started.
@@ -634,7 +634,7 @@ Fping6Location={{ zabbix_proxy_fping6_location }}
 # Range: 1-3600000
 # Default:
 # LogSlowQueries=0
-LogSlowQueries={{ zabbix_proxy_logslowqueries }}
+LogSlowQueries={{ zabbix_proxy_log_slow_queries }}
 
 ### Option: TmpDir
 #       Temporary directory.
@@ -740,7 +740,7 @@ LogSlowQueries={{ zabbix_proxy_logslowqueries }}
 # Mandatory: no
 # Default:
 # StatsAllowedIP=
-StatsAllowedIP={{ zabbix_proxy_statsallowedip }}
+StatsAllowedIP={{ zabbix_proxy_stats_allowed_ip }}
 
 ####### TLS-RELATED PARAMETERS #######
 
@@ -753,7 +753,7 @@ StatsAllowedIP={{ zabbix_proxy_statsallowedip }}
 #
 # Mandatory: yes, if TLS certificate or PSK parameters are defined (even for 'unencrypted' connection)
 # Default:
-TLSConnect={{ zabbix_proxy_tlsconnect }}
+TLSConnect={{ zabbix_proxy_tls_connect }}
 
 ### Option: TLSAccept
 #       What incoming connections to accept from Zabbix server. Used for a passive proxy, ignored on an active proxy.
@@ -764,7 +764,7 @@ TLSConnect={{ zabbix_proxy_tlsconnect }}
 #
 # Mandatory: yes, if TLS certificate or PSK parameters are defined (even for 'unencrypted' connection)
 # Default:
-TLSAccept={{ zabbix_proxy_tlsaccept }}
+TLSAccept={{ zabbix_proxy_tls_accept }}
 
 ### Option: TLSCAFile
 #       Full pathname of a file containing the top-level CA(s) certificates for peer certificate verification.
@@ -813,14 +813,14 @@ TLSAccept={{ zabbix_proxy_tlsaccept }}
 #
 # Mandatory: no
 # Default:
-TLSPSKIdentity={{ zabbix_proxy_tlspsk_identity }}
+TLSPSKIdentity={{ zabbix_proxy_tls_psk_identity }}
 
 ### Option: TLSPSKFile
 #       Full pathname of a file containing the pre-shared key.
 #
 # Mandatory: no
 # Default:
-TLSPSKFile={{ zabbix_proxy_tlspsk_file }}
+TLSPSKFile={{ zabbix_proxy_tls_psk_file }}
 
 ####### For advanced users - TLS ciphersuite selection criteria #######
 

@@ -1,0 +1,28 @@
+zabbix_server_url: "http://localhost/zabbix"
+zabbix_server_login_user: Admin
+zabbix_server_login_password: zabbix
+zabbix_server_validate_certs: true
+
+# Groups that new agents should be added to via autoregistration
+zabbix_server_agent_autoreg_groups:
+  - Linux passive
+
+# Templates to link during autoregistration (names on the server)
+zabbix_server_agent_action_templates: []
+
+# Name for the autoregistration action
+zabbix_server_autoreg_action_name: "Autoregister new hosts into groups"
+
+# Inventory group to read proxies from when registering them on the server
+zabbix_server_proxy_inventory_group: zabbix_proxies
+
+# Variable name (in hostvars) that stores the PSK created on each proxy host
+zabbix_server_proxy_psk_variable: zabbix_proxy_tls_psk_value
+
+# Connection/tls parameters applied when creating proxies
+zabbix_server_proxy_tls_connect: psk
+zabbix_server_proxy_tls_accept: psk
+
+# Whether to create a dedicated host group for proxies
+zabbix_server_create_proxy_group: true
+zabbix_server_proxy_group_name: "Zabbix proxies"

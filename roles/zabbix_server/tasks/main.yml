@@ -1,0 +1,110 @@
+---
+- name: Ensure autoregistration groups exist
+  community.zabbix.zabbix_group:
+    server_url: "{{ zabbix_server_url }}"
+    login_user: "{{ zabbix_server_login_user }}"
+    login_password: "{{ zabbix_server_login_password }}"
+    validate_certs: "{{ zabbix_server_validate_certs }}"
+    name: "{{ item }}"
+    state: present
+  loop: "{{ zabbix_server_agent_autoreg_groups }}"
+  register: zabbix_server_autoreg_groups_created
+
+- name: Fetch autoregistration group info
+  community.zabbix.zabbix_group_info:
+    server_url: "{{ zabbix_server_url }}"
+    login_user: "{{ zabbix_server_login_user }}"
+    login_password: "{{ zabbix_server_login_password }}"
+    validate_certs: "{{ zabbix_server_validate_certs }}"
+    filter:
+      name: "{{ zabbix_server_agent_autoreg_groups }}"
+  register: zabbix_server_autoreg_group_info
+
+- name: Build opgroup list for autoregistration action
+  set_fact:
+    zabbix_server_agent_opgroups: []
+
+- name: Append each group id to opgroups
+  set_fact:
+    zabbix_server_agent_opgroups: "{{ zabbix_server_agent_opgroups + [{'groupid': item.groupid}] }}"
+  loop: "{{ zabbix_server_autoreg_group_info.groups | default([]) }}"
+  when: item.groupid is defined
+
+- name: Fetch template ids for autoregistration action
+  community.zabbix.zabbix_template_info:
+    server_url: "{{ zabbix_server_url }}"
+    login_user: "{{ zabbix_server_login_user }}"
+    login_password: "{{ zabbix_server_login_password }}"
+    validate_certs: "{{ zabbix_server_validate_certs }}"
+    filter:
+      host: "{{ zabbix_server_agent_action_templates }}"
+  when: zabbix_server_agent_action_templates | length > 0
+  register: zabbix_server_autoreg_template_info
+
+- name: Build optemplate list for autoregistration action
+  set_fact:
+    zabbix_server_agent_optemplates: []
+
+- name: Append each template id
+  set_fact:
+    zabbix_server_agent_optemplates: "{{ zabbix_server_agent_optemplates + [{'templateid': item.templateid}] }}"
+  loop: "{{ zabbix_server_autoreg_template_info.templates | default([]) }}"
+  when: zabbix_server_autoreg_template_info is defined and item.templateid is defined
+
+- name: Ensure autoregistration action exists
+  community.zabbix.zabbix_action:
+    server_url: "{{ zabbix_server_url }}"
+    login_user: "{{ zabbix_server_login_user }}"
+    login_password: "{{ zabbix_server_login_password }}"
+    validate_certs: "{{ zabbix_server_validate_certs }}"
+    name: "{{ zabbix_server_autoreg_action_name }}"
+    event_source: autoregistration
+    status: enabled
+    esc_period: 0
+    pause_suppressed: false
+    filter:
+      evaltype: 0
+      conditions:
+        - conditiontype: 24
+          operator: 2
+          value: "groups="
+    operations:
+      - operationtype: 4
+        opgroup: "{{ zabbix_server_agent_opgroups }}"
+        optemplate: "{{ zabbix_server_agent_optemplates }}"
+
+- name: Optionally ensure proxy host group exists
+  community.zabbix.zabbix_group:
+    server_url: "{{ zabbix_server_url }}"
+    login_user: "{{ zabbix_server_login_user }}"
+    login_password: "{{ zabbix_server_login_password }}"
+    validate_certs: "{{ zabbix_server_validate_certs }}"
+    name: "{{ zabbix_server_proxy_group_name }}"
+    state: present
+  when: zabbix_server_create_proxy_group | bool
+  register: zabbix_server_proxy_group_result
+
+- name: Determine proxy group id
+  set_fact:
+    zabbix_server_proxy_group_id: "{{ (zabbix_server_proxy_group_result.groupids | first) if (zabbix_server_proxy_group_result is defined and zabbix_server_proxy_group_result.groupids | length > 0) else None }}"
+  when: zabbix_server_create_proxy_group | bool
+
+- name: Register proxies defined in inventory
+  community.zabbix.zabbix_proxy:
+    server_url: "{{ zabbix_server_url }}"
+    login_user: "{{ zabbix_server_login_user }}"
+    login_password: "{{ zabbix_server_login_password }}"
+    validate_certs: "{{ zabbix_server_validate_certs }}"
+    proxy_host: "{{ hostvars[item].inventory_hostname | default(item) }}"
+    status: active
+    description: "Managed by Ansible"
+    tls_connect: "{{ zabbix_server_proxy_tls_connect }}"
+    tls_accept: "{{ zabbix_server_proxy_tls_accept }}"
+    tls_psk_identity: "{{ hostvars[item].zabbix_proxy_tls_psk_identity | default(hostvars[item].inventory_hostname | default(item)) }}"
+    tls_psk: "{{ hostvars[item][zabbix_server_proxy_psk_variable] }}"
+    groups: "{{ [{'groupid': zabbix_server_proxy_group_id}] if zabbix_server_create_proxy_group | bool else [] }}"
+  loop: "{{ groups[zabbix_server_proxy_inventory_group] | default([]) }}"
+  when:
+    - hostvars[item] is defined
+    - hostvars[item][zabbix_server_proxy_psk_variable] is defined
+    - (not zabbix_server_create_proxy_group) or (zabbix_server_proxy_group_id is defined)
