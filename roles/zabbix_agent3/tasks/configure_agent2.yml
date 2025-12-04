@@ -9,6 +9,16 @@
   notify: Restart zabbix-agent2
   register: agent_cfg
 
+- name: Keep legacy zabbix_agentd.conf in sync
+  ansible.builtin.template:
+    src: zabbix_agent2.conf.j2
+    dest: /etc/zabbix/zabbix_agentd.conf
+    owner: zabbix
+    group: zabbix
+    mode: '0644'
+  become: true
+  register: agentd_cfg
+
 - name: Create dir for custom scripts
   ansible.builtin.file:
     path: /etc/zabbix/zabbix_agent2.d/customscripts.d
