@@ -1,9 +1,8 @@
-
 - hosts: zabbix_proxies
   become: no
   remote_user: root
   roles:
-    - zabbix_proxy
+    - zabbix_proxy2
 
   vars:
     proxy_auth: ""
