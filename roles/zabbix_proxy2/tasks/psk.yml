@@ -20,29 +20,28 @@
   when: psk_file.stat.exists
   no_log: true
 
-- name: Export proxy PSK fact
-  set_fact:
-    zabbix_proxy_tls_psk_value: "{{ existing_psk.content | b64decode | trim }}"
-  when: psk_file.stat.exists
-
 - name: Generate PSK key (if missing)
   command: "openssl rand -hex 64"
   register: psk_value
   no_log: true
-  when: not psk_file.stat.exists
+  when: zabbix_proxy_tls_psk_value is not defined and not psk_file.stat.exists
+
+- name: Determine desired proxy PSK
+  set_fact:
+    desired_proxy_psk: "{{ (zabbix_proxy_tls_psk_value | default(existing_psk.content | b64decode | trim, true)) | default(psk_value.stdout) }}"
+  no_log: true
 
 - name: Save PSK to file
   copy:
     dest: "{{ zabbix_proxy_tls_psk_file }}"
-    content: "{{ psk_value.stdout }}"
+    content: "{{ desired_proxy_psk }}"
     owner: zabbix
     group: zabbix
     mode: '0400'
-  when: not psk_file.stat.exists
+  when: (not psk_file.stat.exists) or (desired_proxy_psk is defined and desired_proxy_psk != (existing_psk.content | b64decode | trim))
   no_log: true
 
-- name: Export newly generated PSK
+- name: Export proxy PSK fact
   set_fact:
-    zabbix_proxy_tls_psk_value: "{{ psk_value.stdout }}"
-  when: not psk_file.stat.exists
+    zabbix_proxy_tls_psk_value: "{{ desired_proxy_psk }}"
   no_log: true
