@@ -41,11 +41,9 @@
 
     - name: Generate agent PSK when missing
       ansible.builtin.command: "openssl rand -hex 64"
-      register: proxy_agent_generated_psk
+      register: proxy_agent_psk_gen
       changed_when: true
       when: zabbix_proxy_agent_tls_psk_value is not defined and not proxy_agent_psk_file.stat.exists and not ansible_check_mode
-      no_log: true
-      become: true
 
     - name: Determine desired agent PSK
       vars:
