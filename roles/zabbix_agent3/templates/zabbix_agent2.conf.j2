@@ -4,8 +4,11 @@ LogFileSize=0
 
 Server={{ zabbix_server_ip }}
 ServerActive={{ zabbix_active_server }}
-Hostname={{ ansible_hostname }}
-HostMetadata=Linux passive
+Hostname={{ zabbix_agent_hostname | default(ansible_hostname) }}
+HostMetadata={{ zabbix_agent_host_metadata }}
+{% if host_metadata_item is defined %}
+HostMetadataItem={{ host_metadata_item }}
+{% endif %}
 
 Include=/etc/zabbix/zabbix_agent2.d/*.conf
 Include=/etc/zabbix/zabbix_agent2.d/plugins.d/*.conf
