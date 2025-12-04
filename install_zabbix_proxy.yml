@@ -1,6 +1,14 @@
 - hosts: zabbix_proxies
   become: no
   remote_user: root
+  roles:
+    - zabbix_proxy2
+    - role: zabbix_agent3
+      vars:
+        zabbix_agent_hostname: "{{ zabbix_proxy_hostname | default(inventory_hostname) }}"
+        zabbix_agent_autoreg_groups:
+          - "Linux servers"
+          - "Zabbix proxies"
 
   vars:
     proxy_auth: ""
