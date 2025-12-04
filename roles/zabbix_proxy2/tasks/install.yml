@@ -33,6 +33,12 @@
          'jammy')
       }}
 
+- name: Remove legacy Zabbix APT repository without keyring
+  ansible.builtin.apt_repository:
+    repo: "deb https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu {{ zabbix_repo_codename }} main"
+    state: absent
+    filename: "zabbix"
+
 - name: Add Zabbix APT repository
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/zabbix-official-repo.gpg] https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu {{ zabbix_repo_codename }} main"
