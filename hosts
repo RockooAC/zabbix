@@ -1,7 +1,7 @@
 [zabbix_proxies]
 t-zabbix-proxy-1 ansible_host=10.15.5.62
 g-zabbix-proxy-1 ansible_host=10.15.5.94
-p-zabbix-proxy-1 ansible_host=10.15.5.97
+p-zabbix-proxy-1 ansible_host=10.15.5.97 ansible_user=ubuntu
 t-zabbix-proxy-2 ansible_host=10.14.7.204
 mysql2021-01 ansible_host=mysql2021-01.fipa.redgelabs.com
 
