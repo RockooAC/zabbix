@@ -43,10 +43,20 @@
       become: true
 
     - name: Determine desired agent PSK
+      vars:
+        proxy_agent_psk_candidates:
+          - "{{ zabbix_proxy_agent_tls_psk_value | default(omit) }}"
+          - "{{ proxy_agent_psk_slurp.content | b64decode | trim if proxy_agent_psk_slurp is defined else omit }}"
+          - "{{ proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else omit }}"
       ansible.builtin.set_fact:
-        proxy_agent_psk_value: "{{ zabbix_proxy_agent_tls_psk_value | default(proxy_agent_psk_slurp.content | b64decode | trim, true) | default(proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else None) }}"
+        proxy_agent_psk_value: "{{ proxy_agent_psk_candidates | select('defined') | list | first | default(None) }}"
         zabbix_proxy_agent_tls_psk_value: "{{ proxy_agent_psk_value }}"
       no_log: true
+
+    - name: Ensure agent PSK value is available
+      ansible.builtin.fail:
+        msg: "Unable to determine proxy agent PSK; provide zabbix_proxy_agent_tls_psk_value or ensure the PSK file exists."
+      when: proxy_agent_psk_value is none
 
     - name: Write agent PSK to file
       ansible.builtin.copy:
