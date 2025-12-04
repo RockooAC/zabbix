@@ -1,0 +1,50 @@
+
+- name: Ensure /etc/zabbix exists for proxy PSK
+  file:
+    path: /etc/zabbix
+    state: directory
+    owner: zabbix
+    group: zabbix
+    mode: '0750'
+  become: true
+
+- name: Check if PSK file exists
+  stat:
+    path: "{{ zabbix_proxy_tls_psk_file }}"
+  register: psk_file
+
+- name: Read existing proxy PSK
+  slurp:
+    path: "{{ zabbix_proxy_tls_psk_file }}"
+  register: existing_psk
+  when: psk_file.stat.exists
+  no_log: true
+
+- name: Export proxy PSK fact
+  set_fact:
+    zabbix_proxy_tls_psk_value: "{{ existing_psk.content | b64decode | trim }}"
+  when: psk_file.stat.exists
+  cacheable: true
+
+- name: Generate PSK key (if missing)
+  command: "openssl rand -hex 64"
+  register: psk_value
+  no_log: true
+  when: not psk_file.stat.exists
+
+- name: Save PSK to file
+  copy:
+    dest: "{{ zabbix_proxy_tls_psk_file }}"
+    content: "{{ psk_value.stdout }}"
+    owner: zabbix
+    group: zabbix
+    mode: '0400'
+  when: not psk_file.stat.exists
+  no_log: true
+
+- name: Export newly generated PSK
+  set_fact:
+    zabbix_proxy_tls_psk_value: "{{ psk_value.stdout }}"
+  when: not psk_file.stat.exists
+  no_log: true
+  cacheable: true

@@ -1,3 +1,16 @@
 ---
-- include_tasks: install_agent.yml
-- include_tasks: configure_agent.yml
+- name: Install Agent on Debian/Ubuntu
+  import_tasks: install_agent3.yml
+
+- name: Generowanie i wdrożenie PSK
+  import_tasks: psk.yml
+  when: zabbix_agent_tls_psk_enable | bool
+
+- name: Configure Agent 2
+  import_tasks: configure_agent2.yml
+
+- name: Ensure Zabbix Agent 2 is running and enabled
+  service:
+    name: zabbix-agent2
+    state: started
+    enabled: true

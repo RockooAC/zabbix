@@ -1,7 +1,23 @@
-zabbix_repo: "deb [signed-by=/usr/share/keyrings/zabbix-archive-keyring.gpg] http://repo.zabbix.com/zabbix/7.0/ubuntu $(lsb_release -sc) main"
-zabbix_repo_key: "https://repo.zabbix.com/zabbix-official-repo.key"
-zabbix_packages:
-  - zabbix-proxy-sqlite3
-  - zabbix-agent
-zabbix_proxy_db: "/var/lib/zabbix/zabbix_proxy.db"
-zabbix_server_ip: "172.30.2.15"
+zabbix_version: "7.0"
+zabbix_repo_key_url: "https://repo.zabbix.com/zabbix-official-repo.key"
+zabbix_proxy_package: "zabbix-proxy-sqlite3"
+zabbix_proxy_server: "172.30.2.15"
+zabbix_proxy_hostname: "p-zabbix-proxy-1"
+zabbix_proxy_log_file: "/var/log/zabbix/zabbix_proxy.log"
+zabbix_proxy_log_file_size: 0
+zabbix_proxy_pid_file: "/run/zabbix/zabbix_proxy.pid"
+zabbix_proxy_socket_dir: "/run/zabbix"
+zabbix_proxy_dbname: "/var/lib/zabbix/zabbix_proxy.db"
+zabbix_proxy_proxy_buffer_mode: "hybrid"
+zabbix_proxy_proxy_memory_buffer_size: "16M"
+zabbix_proxy_snmptrapperfile: "/var/log/snmptrap/snmptrap.log"
+zabbix_proxy_cache_size: "1G"
+zabbix_proxy_timeout: 4
+zabbix_proxy_fping_location: "/usr/bin/fping"
+zabbix_proxy_fping6_location: "/usr/bin/fping6"
+zabbix_proxy_log_slow_queries: 3000
+zabbix_proxy_stats_allowed_ip: "127.0.0.1"
+zabbix_proxy_tls_connect: "psk"
+zabbix_proxy_tls_accept: "psk"
+zabbix_proxy_tls_psk_identity: "zabbix-proxy-{{ inventory_hostname }}"
+zabbix_proxy_tls_psk_file: "/etc/zabbix/zabbix-proxy.key"
