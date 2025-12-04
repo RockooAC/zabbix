@@ -1,0 +1,100 @@
+- name: Install Zabbix agent on proxy host
+  when: zabbix_proxy_agent_enabled | bool
+  block:
+    - name: Remove legacy Zabbix agent (v1)
+      ansible.builtin.apt:
+        name: zabbix-agent
+        state: absent
+      become: true
+
+    - name: Install Zabbix agent packages
+      ansible.builtin.apt:
+        name: "{{ zabbix_proxy_agent_packages }}"
+        state: present
+        update_cache: false
+      become: true
+
+    - name: Ensure /etc/zabbix exists for agent configuration
+      ansible.builtin.file:
+        path: /etc/zabbix
+        state: directory
+        owner: zabbix
+        group: zabbix
+        mode: '0750'
+      become: true
+
+    - name: Check existing agent PSK file
+      ansible.builtin.stat:
+        path: "{{ zabbix_proxy_agent_tls_psk_file }}"
+      register: proxy_agent_psk_file
+
+    - name: Read existing agent PSK
+      ansible.builtin.slurp:
+        path: "{{ zabbix_proxy_agent_tls_psk_file }}"
+      register: proxy_agent_psk_slurp
+      when: proxy_agent_psk_file.stat.exists
+
+    - name: Set existing agent PSK fact
+      ansible.builtin.set_fact:
+        existing_proxy_agent_psk: "{{ proxy_agent_psk_slurp.content | b64decode | trim }}"
+      when: proxy_agent_psk_file.stat.exists
+
+    - name: Generate agent PSK when missing
+      ansible.builtin.command: "openssl rand -hex 64"
+      register: proxy_agent_generated_psk
+      changed_when: true
+      when: zabbix_proxy_agent_tls_psk_value is not defined and not proxy_agent_psk_file.stat.exists and not ansible_check_mode
+      no_log: true
+      become: true
+
+    - name: Determine desired agent PSK
+      ansible.builtin.set_fact:
+        proxy_agent_psk_value: "{{ (zabbix_proxy_agent_tls_psk_value | default(existing_proxy_agent_psk, true)) | default(proxy_agent_generated_psk.stdout) }}"
+        zabbix_proxy_agent_tls_psk_value: "{{ proxy_agent_psk_value }}"
+      no_log: true
+
+    - name: Write agent PSK to file
+      ansible.builtin.copy:
+        content: "{{ proxy_agent_psk_value }}"
+        dest: "{{ zabbix_proxy_agent_tls_psk_file }}"
+        owner: zabbix
+        group: zabbix
+        mode: '0640'
+      when: (not proxy_agent_psk_file.stat.exists) or (proxy_agent_psk_value is defined and proxy_agent_psk_value != existing_proxy_agent_psk)
+      become: true
+      notify: Restart zabbix-agent2
+
+    - name: Render zabbix_agent2.conf for proxy host
+      ansible.builtin.template:
+        src: zabbix_agent2.conf.j2
+        dest: /etc/zabbix/zabbix_agent2.conf
+        owner: zabbix
+        group: zabbix
+        mode: '0644'
+      become: true
+      notify: Restart zabbix-agent2
+      register: proxy_agent_cfg
+
+    - name: Keep legacy agentd config in sync (proxy)
+      ansible.builtin.template:
+        src: zabbix_agent2.conf.j2
+        dest: /etc/zabbix/zabbix_agentd.conf
+        owner: zabbix
+        group: zabbix
+        mode: '0644'
+      become: true
+      register: proxy_agentd_cfg
+
+    - name: Validate proxy agent configuration
+      ansible.builtin.command: "zabbix_agent2 -T -c /etc/zabbix/zabbix_agent2.conf"
+      changed_when: false
+      when: proxy_agent_cfg is changed
+      become: true
+
+    - name: Ensure Zabbix agent2 is running on proxy
+      ansible.builtin.systemd:
+        name: zabbix-agent2
+        state: restarted
+        enabled: true
+        daemon_reload: true
+      become: true
