@@ -18,18 +18,6 @@
     mode: '0755'
   become: true
 
-- name: Create PSK file from template (if variable present)
-  when: zabbix_agent_tls_psk_enable | bool
-  ansible.builtin.template:
-    src: zabbix-agent.key.j2
-    dest: "{{ tls_psk_file }}"
-    owner: zabbix
-    group: zabbix
-    mode: '0640'
-  notify: Restart zabbix-agent2
-  register: agent_psk
-  become: true
-
 - name: Validate agent config (syntax)
   ansible.builtin.command: "zabbix_agent2 -T -c /etc/zabbix/zabbix_agent2.conf"
   changed_when: false

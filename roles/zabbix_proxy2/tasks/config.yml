@@ -1,0 +1,8 @@
+- name: Deploy Zabbix proxy configuration
+  template:
+    src: "zabbix_proxy.conf.j2"
+    dest: "/etc/zabbix/zabbix_proxy.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart zabbix-proxy

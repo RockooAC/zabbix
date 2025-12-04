@@ -1,6 +1,6 @@
 ---
 - name: Install Agent on Debian/Ubuntu
-  import_tasks: install_agent2.yml
+  import_tasks: install_agent3.yml
 
 - name: Generowanie i wdrożenie PSK
   import_tasks: psk.yml

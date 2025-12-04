@@ -1,6 +1,6 @@
 - name: Install agent
   ansible.builtin.import_tasks: 
-    file: install_agent2.yml
+    file: install_agent3.yml
   tags: install-zabbix
 
 - name: Configure agent

@@ -1,0 +1,5 @@
+- name: Ensure zabbix-proxy service is enabled and started
+  service:
+    name: zabbix-proxy
+    state: started
+    enabled: yes

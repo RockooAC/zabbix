@@ -1,183 +1,44 @@
-# --- tasks/main.yml ---
-
-- name: Ensure .netrc files (user/root) have secure permissions
-  ansible.builtin.stat:
-    path: "{{ item }}"
-  register: netrc_stat
-  loop:
-    - "{{ ansible_user_dir }}/.netrc"
-    - "/root/.netrc"
-
-- name: Secure existing .netrc files
-  ansible.builtin.file:
-    path: "{{ item.item }}"
-    mode: '0600'
-  loop: "{{ netrc_stat.results }}"
-  when: item.stat.exists
+- name: Ensure /etc/zabbix exists
   become: true
-
-- name: Remove legacy Zabbix agent (v1) if present
-  ansible.builtin.apt:
-    name: zabbix-agent
-    state: absent
-  become: true
-  when: not ansible_check_mode
-
-# --- CLEANUP: usuń stare repo i stary fallback, żeby nie psuły apt update ---
-- name: Remove any old Zabbix repo list
   ansible.builtin.file:
-    path: /etc/apt/sources.list.d/zabbix.list
-    state: absent
-  become: true
-
-- name: Remove any old Zabbix fallback list
-  ansible.builtin.file:
-    path: /etc/apt/sources.list.d/zabbix-fallback.list
-    state: absent
-  become: true
-
-# --- KEYRING: przygotuj klucz zanim zrobimy pierwsze apt update ---
-- name: Ensure keyrings dir exists
-  ansible.builtin.file:
-    path: /usr/share/keyrings
+    path: /etc/zabbix
     state: directory
-    mode: '0755'
-  become: true
+    owner: zabbix
+    group: zabbix
+    mode: '0750'
 
-- name: Ensure gnupg present (for dearmor)
-  ansible.builtin.apt:
-    name: gnupg
-    state: present
-    update_cache: false
-  become: true
-  when: not ansible_check_mode
+- name: Check existing PSK file
+  ansible.builtin.stat:
+    path: /etc/zabbix/zabbix_agent.key
+  register: psk_file
 
-- name: Download Zabbix repo key (raw)
-  ansible.builtin.get_url:
-    url: "https://repo.zabbix.com/zabbix-official-repo.key"
-    dest: /usr/share/keyrings/zabbix-official-repo.key
-    mode: '0644'
-  become: true
-  when: not ansible_check_mode
+- name: Read existing PSK
+  ansible.builtin.slurp:
+    path: /etc/zabbix/zabbix_agent.key
+  register: psk_slurp
+  when: psk_file.stat.exists
 
-- name: Convert key to GPG keyring
-  ansible.builtin.command:
-    cmd: "gpg --dearmor -o /usr/share/keyrings/zabbix-official-repo.gpg /usr/share/keyrings/zabbix-official-repo.key"
-  args:
-    creates: /usr/share/keyrings/zabbix-official-repo.gpg
-  become: true
-  when: not ansible_check_mode
-
-- name: Set signed-by path
+- name: Set PSK fact from existing file
   ansible.builtin.set_fact:
-    zbx_signed_by_path: "/usr/share/keyrings/zabbix-official-repo.gpg"
+    zabbix_psk: "{{ psk_slurp.content | b64decode | trim }}"
+  when: psk_file.stat.exists
 
-# --- zabbix-release dla bieżącego systemu (bez mapowania arch/codename) ---
-- name: Set zabbix-release URL for Ubuntu
-  ansible.builtin.set_fact:
-    zabbix_release_pkg_url: "https://repo.zabbix.com/zabbix/{{ zabbix_agent_version }}/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_{{ zabbix_agent_version }}+ubuntu{{ ansible_distribution_version }}_all.deb"
-  when: ansible_distribution | lower == 'ubuntu'
-
-- name: Set zabbix-release URL for Debian
-  ansible.builtin.set_fact:
-    zabbix_release_pkg_url: "https://repo.zabbix.com/zabbix/{{ zabbix_agent_version }}/debian/pool/main/z/zabbix-release/zabbix-release_latest_{{ zabbix_agent_version }}+debian{{ ansible_distribution_major_version }}_all.deb"
-  when: ansible_distribution | lower == 'debian'
-
-- name: Install Zabbix repo for current system (zabbix-release)
-  ansible.builtin.apt:
-    deb: "{{ zabbix_release_pkg_url }}"
-    state: present
+- name: Generate PSK (remote) – 64 bytes hex
   become: true
-  when: not ansible_check_mode
+  ansible.builtin.command: "openssl rand -hex 64"
+  register: psk_gen
+  changed_when: true
+  when: not psk_file.stat.exists and not ansible_check_mode
 
-# Teraz apt update jest bezpieczne (brak starego fallbacku + keyring już jest)
-- name: apt update after adding Zabbix repo
-  ansible.builtin.apt:
-    update_cache: true
-  changed_when: false
+- name: Write PSK to file with proper perms
   become: true
-
-# --- Sonda dostępności pakietu w natywnym repo ---
-- name: Probe zabbix-agent2 candidate (native repo)
-  ansible.builtin.command: bash -o pipefail -c "apt-cache policy zabbix-agent2 | awk '/Candidate:/ {print $2}'"
-  register: zbx_candidate_native
-  changed_when: false
-  failed_when: false
-
-- name: Set flag whether fallback is needed
-  ansible.builtin.set_fact:
-    _need_fallback: "{{ (zbx_candidate_native.stdout | default('(none)')) in ['', '(none)'] }}"
-
-# --- Fallback (Ubuntu: jammy,focal; Debian: bookworm,bullseye) z poprawnym signed-by ---
-- name: Add fallback repo file (Ubuntu jammy & focal)
   ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/zabbix-fallback.list
-    mode: '0644'
-    content: |
-      deb [signed-by={{ zbx_signed_by_path }}] https://repo.zabbix.com/zabbix/{{ zabbix_agent_version }}/ubuntu jammy main
-      deb [signed-by={{ zbx_signed_by_path }}] https://repo.zabbix.com/zabbix/{{ zabbix_agent_version }}/ubuntu focal main
-  become: true
-  when:
-    - _need_fallback
-    - ansible_distribution | lower == 'ubuntu'
+    content: "{{ psk_gen.stdout }}"
+    dest: /etc/zabbix/zabbix_agent.key
+    owner: zabbix
+    group: zabbix
+    mode: '0640'
+  when: not psk_file.stat.exists and not ansible_check_mode
+  notify: Restart zabbix-agent2
 
-- name: Add fallback repo file (Debian bookworm & bullseye)
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/zabbix-fallback.list
-    mode: '0644'
-    content: |
-      deb [signed-by={{ zbx_signed_by_path }}] https://repo.zabbix.com/zabbix/{{ zabbix_agent_version }}/debian bookworm main
-      deb [signed-by={{ zbx_signed_by_path }}] https://repo.zabbix.com/zabbix/{{ zabbix_agent_version }}/debian bullseye main
-  become: true
-  when:
-    - _need_fallback
-    - ansible_distribution | lower == 'debian'
 
-- name: apt update after adding fallback (if needed)
-  ansible.builtin.apt:
-    update_cache: true
-  changed_when: false
-  become: true
-  when: _need_fallback
-
-# --- Druga sonda po fallbacku ---
-- name: Probe zabbix-agent2 candidate after fallback
-  ansible.builtin.command: bash -o pipefail -c "apt-cache policy zabbix-agent2 | awk '/Candidate:/ {print $2}'"
-  register: zbx_candidate_after_fb
-  changed_when: false
-  failed_when: false
-  when: _need_fallback
-
-- name: Decide final package to install (agent2 or legacy agent)
-  ansible.builtin.set_fact:
-    _pkg_to_install: >-
-      {{
-        'zabbix-agent2'
-        if (not _need_fallback) or
-           ((zbx_candidate_after_fb.stdout | default('(none)')) not in ['', '(none)'])
-        else
-        'zabbix-agent'
-      }}
-
-# --- Instalacja (bez --check) ---
-- name: Install chosen Zabbix agent package
-  ansible.builtin.apt:
-    name: "{{ _pkg_to_install }}"
-    state: present
-    update_cache: true
-    install_recommends: false
-  become: true
-  when: not ansible_check_mode
-
-- name: Show what would be installed (check mode)
-  ansible.builtin.debug:
-    msg: "Check mode: would install package '{{ _pkg_to_install }}' (signed-by={{ zbx_signed_by_path }})"
-  when: ansible_check_mode
-
-- name: Ensure {{ _pkg_to_install }} service enabled and running
-  ansible.builtin.service:
-    name: "{{ 'zabbix-agent2' if _pkg_to_install == 'zabbix-agent2' else 'zabbix-agent' }}"
-    state: started
-    enabled: true
-  become: true
-  when: not ansible_check_mode

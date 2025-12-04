@@ -1,0 +1,17 @@
+- name: Add Zabbix repository GPG key
+  apt_key:
+    url: "{{ zabbix_repo_key_url }}"
+    state: present
+
+- name: Add Zabbix APT repository
+  apt_repository:
+    repo: "deb https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu {{ ansible_distribution_release }} main"
+    state: present
+    filename: "zabbix"
+    update_cache: yes
+
+- name: Install Zabbix proxy (SQLite3)
+  apt:
+    name: "{{ zabbix_proxy_package }}"
+    state: present
+    update_cache: yes

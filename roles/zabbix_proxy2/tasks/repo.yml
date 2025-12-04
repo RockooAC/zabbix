@@ -1,0 +1,19 @@
+---
+- name: Ustal nazwę dystrybucji dla repozytorium Zabbix (Ubuntu/Debian)
+  set_fact:
+    zabbix_repo_release: "{{ ansible_distribution_release | lower }}"
+
+- name: Użyj 'focal' jako domyślnego repozytorium dla nieobsługiwanych wydań Ubuntu
+  set_fact:
+    zabbix_repo_release: "jammy"
+  when: ansible_distribution_release | lower not in ["focal", "jammy"]
+
+- name: Dodaj repozytorium Zabbix (Debian/Ubuntu)
+  apt_repository:
+    repo: "deb [arch=amd64] {{ zabbix_repo_baseurl }}/zabbix/{{ zabbix_version }}/ubuntu {{ zabbix_repo_release }} main"
+    state: present
+    filename: "zabbix"
+    update_cache: yes
+    key_url: "{{ zabbix_repo_key_url }}"
+  when: ansible_os_family == "Debian"
+
