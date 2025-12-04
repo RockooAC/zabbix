@@ -34,11 +34,6 @@
       register: proxy_agent_psk_slurp
       when: proxy_agent_psk_file.stat.exists
 
-    - name: Set existing agent PSK fact
-      ansible.builtin.set_fact:
-        existing_proxy_agent_psk: "{{ proxy_agent_psk_slurp.content | b64decode | trim }}"
-      when: proxy_agent_psk_file.stat.exists
-
     - name: Generate agent PSK when missing
       ansible.builtin.command: "openssl rand -hex 64"
       register: proxy_agent_generated_psk
@@ -49,14 +44,9 @@
 
     - name: Determine desired agent PSK
       ansible.builtin.set_fact:
-        proxy_agent_psk_value: "{{ (zabbix_proxy_agent_tls_psk_value | default(existing_proxy_agent_psk | default(omit), true)) | default(proxy_agent_generated_psk.stdout | default(omit)) }}"
+        proxy_agent_psk_value: "{{ zabbix_proxy_agent_tls_psk_value | default(proxy_agent_psk_slurp.content | b64decode | trim, true) | default(proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else None) }}"
         zabbix_proxy_agent_tls_psk_value: "{{ proxy_agent_psk_value }}"
       no_log: true
-
-    - name: Fail when no agent PSK could be determined
-      ansible.builtin.fail:
-        msg: "No PSK available for proxy agent; define zabbix_proxy_agent_tls_psk_value or ensure generation is permitted."
-      when: proxy_agent_psk_value is not defined
 
     - name: Write agent PSK to file
       ansible.builtin.copy:
@@ -65,7 +55,7 @@
         owner: zabbix
         group: zabbix
         mode: '0640'
-      when: (not proxy_agent_psk_file.stat.exists) or (proxy_agent_psk_value is defined and proxy_agent_psk_value != existing_proxy_agent_psk)
+      when: (not proxy_agent_psk_file.stat.exists) or (proxy_agent_psk_slurp is defined and (proxy_agent_psk_slurp.content | b64decode | trim) != proxy_agent_psk_value)
       become: true
       notify: Restart zabbix-agent2
 
