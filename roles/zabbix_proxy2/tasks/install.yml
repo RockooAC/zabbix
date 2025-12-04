@@ -1,17 +1,59 @@
-- name: Add Zabbix repository GPG key
-  apt_key:
-    url: "{{ zabbix_repo_key_url }}"
+- name: Ensure keyrings directory exists
+  ansible.builtin.file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Ensure gnupg is installed
+  ansible.builtin.apt:
+    name: gnupg
     state: present
 
+- name: Remove legacy Zabbix key files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/share/keyrings/zabbix-official-repo.key
+    - /usr/share/keyrings/zabbix-official-repo.gpg
+
+- name: Download Zabbix repository key
+  ansible.builtin.get_url:
+    url: "{{ zabbix_repo_key_url }}"
+    dest: /tmp/zabbix-official-repo.key
+    mode: '0644'
+
+- name: Convert Zabbix repository key to keyring
+  ansible.builtin.command:
+    cmd: >-
+      gpg --batch --yes --dearmor
+      --output /usr/share/keyrings/zabbix-official-repo.gpg
+      /tmp/zabbix-official-repo.key
+    creates: /usr/share/keyrings/zabbix-official-repo.gpg
+
+- name: Remove temporary Zabbix repository key
+  ansible.builtin.file:
+    path: /tmp/zabbix-official-repo.key
+    state: absent
+
+- name: Determine repository codename
+  ansible.builtin.set_fact:
+    zabbix_repo_codename: >-
+      {{
+        (ansible_lsb.codename if ansible_lsb.codename is defined else
+         ansible_distribution_release if ansible_distribution_release is defined else
+         'jammy')
+      }}
+
 - name: Add Zabbix APT repository
-  apt_repository:
-    repo: "deb https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu {{ ansible_distribution_release }} main"
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/zabbix-official-repo.gpg] https://repo.zabbix.com/zabbix/{{ zabbix_version }}/ubuntu {{ zabbix_repo_codename }} main"
     state: present
     filename: "zabbix"
     update_cache: yes
 
 - name: Install Zabbix proxy (SQLite3)
-  apt:
+  ansible.builtin.apt:
     name: "{{ zabbix_proxy_package }}"
     state: present
     update_cache: yes
