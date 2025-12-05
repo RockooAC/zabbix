@@ -1,5 +1,6 @@
 ---
 - name: Render zabbix_agent2.conf
+  become: true
   ansible.builtin.template:
     src: zabbix_agent2.conf.j2
     dest: /etc/zabbix/zabbix_agent2.conf
@@ -10,13 +11,13 @@
   register: agent_cfg
 
 - name: Keep legacy zabbix_agentd.conf in sync
+  become: true
   ansible.builtin.template:
     src: zabbix_agent2.conf.j2
     dest: /etc/zabbix/zabbix_agentd.conf
     owner: zabbix
     group: zabbix
     mode: '0644'
-  become: true
   register: agentd_cfg
 
 - name: Create dir for custom scripts
@@ -29,7 +30,8 @@
   become: true
 
 - name: Validate agent config (syntax)
+  become: true
   ansible.builtin.command: "zabbix_agent2 -T -c /etc/zabbix/zabbix_agent2.conf"
   changed_when: false
-  when: agent_cfg is changed or (agent_psk is defined and agent_psk is changed)
-  become: true
+  when:
+    - agent_cfg is changed or agentd_cfg is changed or (zabbix_agent_psk_write is defined and zabbix_agent_psk_write.changed)

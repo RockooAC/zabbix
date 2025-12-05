@@ -1,4 +1,4 @@
-
+---
 - hosts: observium_agents
   remote_user: ubuntu
   become: true
