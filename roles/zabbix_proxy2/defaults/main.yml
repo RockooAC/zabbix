@@ -39,6 +39,8 @@ zabbix_proxy_agent_host_metadata: >-
     if (zabbix_proxy_agent_autoreg_groups | length > 0)
     else 'proxy'
   }}
+zabbix_proxy_agent_host_metadata_override: ""
+zabbix_proxy_agent_host_metadata_effective: "{{ zabbix_proxy_agent_host_metadata_override | default(zabbix_proxy_agent_host_metadata, true) }}"
 zabbix_proxy_agent_host_metadata_item: system.hostname
 zabbix_proxy_agent_tls_psk_identity: "zabbix-autoregistration"
 zabbix_proxy_agent_tls_psk_file: /etc/zabbix/zabbix_agent.key
