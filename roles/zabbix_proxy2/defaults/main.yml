@@ -39,9 +39,17 @@ zabbix_proxy_agent_host_metadata: >-
     if (zabbix_proxy_agent_autoreg_groups | length > 0)
     else 'proxy'
   }}
-zabbix_proxy_agent_host_metadata_override: ""
-zabbix_proxy_agent_host_metadata_effective: "{{ zabbix_proxy_agent_host_metadata_override | default(zabbix_proxy_agent_host_metadata, true) }}"
+zabbix_proxy_agent_host_metadata_override: ~
+zabbix_proxy_agent_host_metadata_effective: >-
+  {{
+    (zabbix_proxy_agent_host_metadata_override
+     if (zabbix_proxy_agent_host_metadata_override is defined and zabbix_proxy_agent_host_metadata_override | string | length > 0)
+     else zabbix_proxy_agent_host_metadata)
+  }}
 zabbix_proxy_agent_host_metadata_item: system.hostname
-zabbix_proxy_agent_tls_psk_identity: "zabbix-autoregistration"
+zabbix_proxy_agent_tls_connect: "psk"
+zabbix_proxy_agent_tls_accept: "psk"
+zabbix_proxy_agent_tls_psk_identity: "{{ zabbix_proxy_hostname | default(inventory_hostname) }}"
 zabbix_proxy_agent_tls_psk_file: /etc/zabbix/zabbix_agent.key
-zabbix_proxy_agent_tls_psk_value: "6082e8981b52b4a4bc1a78aaadf5a4094f68b8d00f126b13203d5b26a0f46fd1"
+zabbix_proxy_agent_tls_psk_value: "{{ zabbix_proxy_tls_psk_value }}"
+zabbix_proxy_agent_tls_psk_enable: true

@@ -1,11 +1,11 @@
 - name: Install Zabbix proxy and prerequisites
   import_tasks: install.yml
 
-- name: Install and configure Zabbix agent on proxy host
-  import_tasks: agent.yml
-
 - name: Generate or retrieve PSK for secure communication
   import_tasks: psk.yml
+
+- name: Install and configure Zabbix agent on proxy host
+  import_tasks: agent.yml
 
 - name: Configure Zabbix proxy
   import_tasks: config.yml
