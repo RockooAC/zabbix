@@ -65,7 +65,7 @@
 
     - name: Write agent PSK to file
       ansible.builtin.copy:
-        content: "{{ proxy_agent_psk_value }}"
+        content: "{{ zabbix_proxy_agent_tls_psk_value }}"
         dest: "{{ zabbix_proxy_agent_tls_psk_file }}"
         owner: zabbix
         group: zabbix
