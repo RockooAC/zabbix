@@ -1,6 +1,5 @@
-
 - name: Ensure /etc/zabbix exists for proxy PSK
-  file:
+  ansible.builtin.file:
     path: /etc/zabbix
     state: directory
     owner: zabbix
@@ -9,30 +8,33 @@
   become: true
 
 - name: Check if PSK file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ zabbix_proxy_tls_psk_file }}"
   register: psk_file
+  become: true
 
 - name: Read existing proxy PSK
-  slurp:
+  ansible.builtin.slurp:
     path: "{{ zabbix_proxy_tls_psk_file }}"
   register: existing_psk
   when: psk_file.stat.exists
   no_log: true
+  become: true
 
-- name: Generate PSK key (if missing)
-  command: "openssl rand -hex 64"
+- name: Generate PSK key when missing
+  ansible.builtin.command: "openssl rand -hex 64"
   register: psk_value
   no_log: true
   when: zabbix_proxy_tls_psk_value is not defined and not psk_file.stat.exists
+  become: true
 
 - name: Determine desired proxy PSK
-  set_fact:
+  ansible.builtin.set_fact:
     desired_proxy_psk: "{{ (zabbix_proxy_tls_psk_value | default(existing_psk.content | b64decode | trim, true)) | default(psk_value.stdout) }}"
   no_log: true
 
 - name: Save PSK to file
-  copy:
+  ansible.builtin.copy:
     dest: "{{ zabbix_proxy_tls_psk_file }}"
     content: "{{ desired_proxy_psk }}"
     owner: zabbix
@@ -40,8 +42,9 @@
     mode: '0400'
   when: (not psk_file.stat.exists) or (desired_proxy_psk is defined and desired_proxy_psk != (existing_psk.content | b64decode | trim))
   no_log: true
+  become: true
 
 - name: Export proxy PSK fact
-  set_fact:
+  ansible.builtin.set_fact:
     zabbix_proxy_tls_psk_value: "{{ desired_proxy_psk }}"
   no_log: true
