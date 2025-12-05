@@ -46,15 +46,10 @@
       when: zabbix_proxy_agent_tls_psk_value is not defined and not proxy_agent_psk_file.stat.exists and not ansible_check_mode
 
     - name: Determine desired agent PSK
-      vars:
-        proxy_agent_psk_candidates:
-          - "{{ zabbix_proxy_agent_tls_psk_value | default(omit) }}"
-          - "{{ proxy_agent_psk_slurp.content | b64decode | trim if proxy_agent_psk_slurp is defined else omit }}"
-          - "{{ proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else omit }}"
       ansible.builtin.set_fact:
         proxy_agent_psk_value: "{{ zabbix_proxy_agent_tls_psk_value
           | default(proxy_agent_psk_slurp.content | b64decode | trim if proxy_agent_psk_slurp is defined else None)
-          | default(proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else None) }}"
+          | default(proxy_agent_psk_gen.stdout if proxy_agent_psk_gen is defined else None) }}"
         zabbix_proxy_agent_tls_psk_value: "{{ proxy_agent_psk_value }}"
       no_log: false
 
