@@ -23,13 +23,54 @@
         mode: '0750'
       become: true
 
-    - name: Ensure agent PSK is present with fixed value
+    - name: Check existing agent PSK file
+      ansible.builtin.stat:
+        path: "{{ zabbix_proxy_agent_tls_psk_file }}"
+      register: proxy_agent_psk_file
+
+    - name: Read existing agent PSK
+      ansible.builtin.slurp:
+        path: "{{ zabbix_proxy_agent_tls_psk_file }}"
+      register: proxy_agent_psk_slurp
+      when: proxy_agent_psk_file.stat.exists
+
+    - name: Set existing agent PSK fact
+      ansible.builtin.set_fact:
+        existing_proxy_agent_psk: "{{ proxy_agent_psk_slurp.content | b64decode | trim }}"
+      when: proxy_agent_psk_file.stat.exists
+
+    - name: Generate agent PSK when missing
+      ansible.builtin.command: "openssl rand -hex 64"
+      register: proxy_agent_psk_gen
+      changed_when: true
+      when: zabbix_proxy_agent_tls_psk_value is not defined and not proxy_agent_psk_file.stat.exists and not ansible_check_mode
+
+    - name: Determine desired agent PSK
+      vars:
+        proxy_agent_psk_candidates:
+          - "{{ zabbix_proxy_agent_tls_psk_value | default(omit) }}"
+          - "{{ proxy_agent_psk_slurp.content | b64decode | trim if proxy_agent_psk_slurp is defined else omit }}"
+          - "{{ proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else omit }}"
+      ansible.builtin.set_fact:
+        proxy_agent_psk_value: "{{ zabbix_proxy_agent_tls_psk_value
+          | default(proxy_agent_psk_slurp.content | b64decode | trim if proxy_agent_psk_slurp is defined else None)
+          | default(proxy_agent_generated_psk.stdout if proxy_agent_generated_psk is defined else None) }}"
+        zabbix_proxy_agent_tls_psk_value: "{{ proxy_agent_psk_value }}"
+      no_log: false
+
+    - name: Ensure agent PSK value is available
+      ansible.builtin.fail:
+        msg: "Unable to determine proxy agent PSK; provide zabbix_proxy_agent_tls_psk_value or ensure the PSK file exists."
+      when: proxy_agent_psk_value is none
+
+    - name: Write agent PSK to file
       ansible.builtin.copy:
         content: "{{ zabbix_proxy_agent_tls_psk_value }}"
         dest: "{{ zabbix_proxy_agent_tls_psk_file }}"
         owner: zabbix
         group: zabbix
         mode: '0640'
+      when: (not proxy_agent_psk_file.stat.exists) or (proxy_agent_psk_value is defined and proxy_agent_psk_value != existing_proxy_agent_psk)
       become: true
       notify: Restart zabbix-agent2
 
